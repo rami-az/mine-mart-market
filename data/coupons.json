@@ -1,0 +1,18 @@
+[
+  {
+    "id": 1,
+    "code": "SUMMER20",
+    "discount": 20,
+    "uses": 148,
+    "status": "active",
+    "desc": "خصم 20% فوري على كافة المقتنيات"
+  },
+  {
+    "id": 2,
+    "code": "MEETUP10",
+    "discount": 10,
+    "uses": 64,
+    "status": "active",
+    "desc": "خصم 10% على تذاكر التجمع والفعاليات"
+  }
+]

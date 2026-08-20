@@ -2,8 +2,25 @@
 // Mine Mart Admin Dashboard - Persistence & Direct File Upload Script
 // ==========================================================================
 
-const API_BASE = '/api/v1';
+const BACKEND_URL = (typeof window !== 'undefined' && (window.location.protocol === 'file:' || (window.location.port !== '5000' && !window.location.port)))
+    ? 'http://localhost:5000'
+    : '';
+const API_BASE = `${BACKEND_URL}/api/v1`;
 const EXCHANGE_RATE_USD_TO_IQD = 1320; // 1 USD = 1,320 IQD
+
+// Cross-tab Real-Time Synchronization Channel
+const minemartChannel = (typeof window !== 'undefined' && window.BroadcastChannel) ? new BroadcastChannel('minemart_store_channel') : null;
+
+function broadcastDataChange() {
+    try {
+        if (minemartChannel) {
+            minemartChannel.postMessage({ type: 'DATA_UPDATED', timestamp: Date.now() });
+        }
+        if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('minemart:data_updated', { detail: { timestamp: Date.now() } }));
+        }
+    } catch(e) {}
+}
 
 // ==========================================================================
 // IndexedDB Dual-Layer Permanent Persistence Engine
@@ -54,6 +71,7 @@ async function idbGet(key) {
     }
 }
 
+
 // Seed Categories Default Data
 const defaultCategories = [
     { id: 1, name: "المخلوقات 3D", slug: "creatures", count: 4, image: "assets/images/prod_fox.jpg", desc: "مجسمات المخلوقات ثلاثية الأبعاد بأسلوب الفوكسل" },
@@ -63,256 +81,111 @@ const defaultCategories = [
     { id: 5, name: "الألعاب والقطع", slug: "toys", count: 1, image: "assets/images/prod_magnetic_cubes.jpg", desc: "مكعبات وقلاع مغناطيسية" }
 ];
 
-// Seed Products Default Data (All 12 Canonical Products in USD $)
+// Seed Products Default Data (Canonical Products from data/products.json)
 const defaultProducts = [
     {
-        id: 1,
-        name: "Voxel Fox Figurine | مجسم الثعلب المكعبي 3D",
+        id: 1787145865780,
+        name: "مجسم بطة بثيمة ماين كرتافت",
         category: "creatures",
-        price: 45,
-        originalPrice: 56,
-        discountPercent: 20,
-        stock: 5,
-        status: "published",
-        isPopular: true,
-        rating: 5,
-        image: "assets/images/prod_fox.jpg",
-        images: [
-            "assets/images/prod_fox.jpg",
-            "assets/images/prod_angle_detail1.jpg",
-            "assets/images/prod_angle_detail2.jpg",
-            "assets/images/prod_3d_figure.jpg"
-        ],
-        desc: "مجسم فوكسل احترافي عالي الدقة لشخصية الثعلب في ماين كرافت"
-    },
-    {
-        id: 2,
-        name: "Voxel Sword Replica | مجسم السيف البكسلي 3D",
-        category: "decor",
-        price: 60,
-        originalPrice: 70,
-        discountPercent: 15,
-        stock: 12,
-        status: "published",
-        isPopular: true,
-        rating: 5,
-        image: "assets/images/prod_sword.jpg",
-        images: [
-            "assets/images/prod_sword.jpg",
-            "assets/images/prod_angle_detail1.jpg",
-            "assets/images/prod_lamp.jpg"
-        ],
-        desc: "سيف دايموند مضيء ديكوري بحجم واقعي للجدار والسيت اب"
-    },
-    {
-        id: 3,
-        name: "Mini Dragon Model | مجسم التنين الأخضر 3D",
-        category: "creatures",
-        price: 68,
-        originalPrice: 80,
-        discountPercent: 15,
+        price: 7.58,
+        priceIQD: 10000,
+        originalPrice: null,
+        originalPriceIQD: null,
+        discountPercent: 0,
         stock: 2,
         status: "published",
         isPopular: true,
         rating: 5,
-        image: "assets/images/prod_dragon.jpg",
+        image: "assets/images/مجسم_بطة_بثيمة_ماين_كرتافت_1.jpg",
         images: [
-            "assets/images/prod_dragon.jpg",
-            "assets/images/prod_angle_detail1.jpg",
-            "assets/images/prod_angle_detail2.jpg"
+            "assets/images/مجسم_بطة_بثيمة_ماين_كرتافت_1.jpg",
+            "assets/images/مجسم_بطة_بثيمة_ماين_كرتافت_2.jpg"
         ],
-        desc: "مجسم تنين ثلاثي الأبعاد بألوان براقة وقاعدة تثبيت"
+        desc: "",
+        description: "",
+        hasColors: true,
+        colors: [],
+        hasSizes: true,
+        sizes: []
     },
     {
-        id: 4,
-        name: "Voxel Chest Storage | صندوق التخزين المكعبي",
-        category: "accessories",
-        price: 52,
-        originalPrice: null,
-        discountPercent: 0,
-        stock: 8,
-        status: "published",
-        isPopular: true,
-        rating: 5,
-        image: "assets/images/prod_chest.jpg",
-        images: [
-            "assets/images/prod_chest.jpg",
-            "assets/images/prod_angle_detail2.jpg",
-            "assets/images/prod_magnetic_cubes.jpg"
-        ],
-        desc: "صندوق تخزين الأغراض والمستلزمات بتصميم ماين كرافت الخشبي"
-    },
-    {
-        id: 5,
-        name: "Pixel Cloud Nightlight | مصباح السحابة",
-        category: "lamps",
-        price: 35,
-        originalPrice: 45,
-        discountPercent: 20,
-        stock: 15,
-        status: "published",
-        isPopular: false,
-        rating: 5,
-        image: "assets/images/prod_lamp.jpg",
-        images: [
-            "assets/images/prod_lamp.jpg",
-            "assets/images/prod_angle_detail1.jpg",
-            "assets/images/prod_sword.jpg"
-        ],
-        desc: "مصباح ليلي مضيء بكسلي بألوان RGB دافئة"
-    },
-    {
-        id: 6,
-        name: "Tiny Voxel Garden | حديقة الميكرو المكعبة 3D",
+        id: 1787143700528,
+        name: "كرة الصورة المضيئة",
         category: "decor",
-        price: 38,
-        originalPrice: 48,
-        discountPercent: 20,
-        stock: 6,
-        status: "published",
-        isPopular: false,
-        rating: 5,
-        image: "assets/images/prod_wall_art.jpg",
-        images: [
-            "assets/images/prod_wall_art.jpg",
-            "assets/images/prod_angle_detail2.jpg",
-            "assets/images/prod_fox.jpg"
-        ],
-        desc: "حوض مكعبي صغير يحتوي على حديقة مصغرة وأشجار بكسلية ملونة"
-    },
-    {
-        id: 7,
-        name: "Robot Mech Figure | مجسم الروبوت المكعبي 3D",
-        category: "creatures",
-        price: 95,
+        price: 11.36,
+        priceIQD: 15000,
         originalPrice: null,
+        originalPriceIQD: null,
         discountPercent: 0,
-        stock: 4,
+        stock: 2,
         status: "published",
         isPopular: true,
         rating: 5,
-        image: "assets/images/prod_3d_figure.jpg",
+        image: "assets/images/كرة_الصورة_المضيئة_1.jpg",
         images: [
-            "assets/images/prod_3d_figure.jpg",
-            "assets/images/prod_angle_detail1.jpg",
-            "assets/images/prod_dragon.jpg"
+            "assets/images/كرة_الصورة_المضيئة_1.jpg",
+            "assets/images/كرة_الصورة_المضيئة_2.jpg"
         ],
-        desc: "مجسم روبوت قتالي 3D متعدد القطع التجميعية"
+        desc: "",
+        description: "",
+        hasColors: true,
+        colors: [],
+        hasSizes: true,
+        sizes: []
     },
     {
-        id: 8,
-        name: "Voxel Castle Model | مجسم القلعة المكعبة 3D",
-        category: "toys",
-        price: 110,
-        originalPrice: 130,
-        discountPercent: 15,
-        stock: 3,
-        status: "published",
-        isPopular: false,
-        rating: 5,
-        image: "assets/images/prod_magnetic_cubes.jpg",
-        images: [
-            "assets/images/prod_magnetic_cubes.jpg",
-            "assets/images/prod_angle_detail2.jpg",
-            "assets/images/prod_chest.jpg"
-        ],
-        desc: "نموذج قلعة ثلاثية الأبعاد مبنية من قطع مكعبة مغناطيسية"
-    },
-    {
-        id: 9,
-        name: "Voxel Green Keycaps | أزرار كيبورد الفوكسل الخضراء",
-        category: "accessories",
-        price: 24,
-        originalPrice: 32,
-        discountPercent: 25,
-        stock: 20,
-        status: "published",
-        isPopular: false,
-        rating: 5,
-        image: "assets/images/prod_keycaps.jpg",
-        images: [
-            "assets/images/prod_keycaps.jpg",
-            "assets/images/prod_mousepad.jpg",
-            "assets/images/prod_angle_detail1.jpg"
-        ],
-        desc: "مجموعة أزرار كيبورد ميكانيكية مصنوعة بتصميم مكعبي بارز"
-    },
-    {
-        id: 10,
-        name: "Cyber Voxel Desk Mat | ماوس باد السيت اب الكبير",
-        category: "accessories",
-        price: 28,
-        originalPrice: 36,
-        discountPercent: 24,
-        stock: 14,
-        status: "published",
-        isPopular: true,
-        rating: 5,
-        image: "assets/images/prod_mousepad.jpg",
-        images: [
-            "assets/images/prod_mousepad.jpg",
-            "assets/images/prod_keycaps.jpg",
-            "assets/images/prod_angle_detail2.jpg"
-        ],
-        desc: "ماوس باد بحجم كبير مطبوع بمدينة بكسلية خضراء مقاومة للماء"
-    },
-    {
-        id: 11,
-        name: "Voxel Knight Figurine | مجسم الفارس البكسلي",
+        id: 1787134750367,
+        name: "مجسم غاست (Ghast)",
         category: "creatures",
-        price: 55,
-        originalPrice: 65,
-        discountPercent: 15,
-        stock: 7,
-        status: "published",
-        isPopular: false,
-        rating: 5,
-        image: "assets/images/prod_3d_figure.jpg",
-        images: [
-            "assets/images/prod_3d_figure.jpg",
-            "assets/images/prod_angle_detail1.jpg",
-            "assets/images/prod_fox.jpg"
-        ],
-        desc: "مجسم تمثال فارس بكسلي بفرسان القرية مطبوع 3D"
-    },
-    {
-        id: 12,
-        name: "Pixel Sunset Canvas | لوحة جبال الفوكسل",
-        category: "decor",
-        price: 32,
+        price: 6.06,
+        priceIQD: 8000,
         originalPrice: null,
+        originalPriceIQD: null,
         discountPercent: 0,
-        stock: 9,
-        status: "published",
-        isPopular: false,
-        rating: 5,
-        image: "assets/images/prod_wall_art.jpg",
-        images: [
-            "assets/images/prod_wall_art.jpg",
-            "assets/images/prod_angle_detail2.jpg"
-        ],
-        desc: "لوحة جدارية مؤطرة تعبر عن غروب الشمس فوق عوالم الجبال"
-    },
-    {
-        id: 13,
-        name: "Voxel Creeper Figurine | مجسم كريبر المكعبي 3D",
-        category: "creatures",
-        price: 45,
-        priceIQD: 59400,
-        originalPrice: 55,
-        originalPriceIQD: 72600,
-        discountPercent: 18,
-        stock: 10,
+        stock: 2,
         status: "published",
         isPopular: true,
         rating: 5,
-        image: "assets/images/prod_fox.jpg",
+        image: "assets/images/مجسم_غاست_(Ghast)_1.jpg",
         images: [
-            "assets/images/prod_fox.jpg",
-            "assets/images/prod_angle_detail1.jpg",
-            "assets/images/prod_3d_figure.jpg"
+            "assets/images/مجسم_غاست_(Ghast)_1.jpg",
+            "assets/images/مجسم_غاست_(Ghast)_2.jpg"
         ],
-        desc: "مجسم كريبر ثلاثي الأبعاد بتفاصيل بكسلية خضراء دقيقة ومطبوع بجودة 3D فائقة مناسب لعشاق السيت اب ومقتنيات ماين كرافت."
+        desc: "مجسم غاست (Ghast)\nالارتفاع 96 سم\nاللون ابيض \nتم طباعتهه باجود انواع مواد الطباعه ثلاثية الابعاد",
+        description: "مجسم غاست (Ghast)\nالارتفاع 96 سم\nاللون ابيض \nتم طباعتهه باجود انواع مواد الطباعه ثلاثية الابعاد",
+        hasColors: true,
+        colors: [],
+        hasSizes: true,
+        sizes: []
+    },
+    {
+        id: 1787126317135,
+        name: "مداليا كريبر",
+        category: "creatures",
+        price: 1.89,
+        priceIQD: 2500,
+        originalPrice: null,
+        originalPriceIQD: null,
+        discountPercent: 0,
+        stock: 5,
+        status: "published",
+        isPopular: true,
+        rating: 5,
+        image: "assets/images/مداليا_كريبر_1.jpg",
+        images: [
+            "assets/images/مداليا_كريبر_1.jpg",
+            "assets/images/مداليا_كريبر_2.jpg"
+        ],
+        desc: "مجسم كريبر بقياس 6 سم \nحلقة معدنية لتعليق المجسم في اي مكان \nالمجسم مطبوع باجود انواع مواد الطباعة",
+        description: "مجسم كريبر بقياس 6 سم \nحلقة معدنية لتعليق المجسم في اي مكان \nالمجسم مطبوع باجود انواع مواد الطباعة",
+        hasColors: true,
+        colors: [],
+        hasSizes: true,
+        sizes: [
+            { name: "صغير (10 سم)", priceIQD: 2500, priceUSD: 1.89 },
+            { name: "متوسط (18 سم)", priceIQD: 4500, priceUSD: 3.41 },
+            { name: "كبير (26 سم)", priceIQD: 7000, priceUSD: 5.3 }
+        ]
     }
 ];
 
@@ -371,64 +244,95 @@ const defaultCoupons = [
     { id: 2, code: "MEETUP10", discount: 10, uses: 64, status: "active", desc: "خصم 10% على تذاكر التجمع والفعاليات" }
 ];
 
-// Helpers to initialize state with smart merge
+// Helpers to initialize state cleanly from physical disk files (Shared by all computers)
 function loadMergedAdminProducts() {
-    const saved = localStorage.getItem('mine_mart_products');
-    if (!saved) return defaultProducts;
-    try {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-            let merged = [...parsed];
-            defaultProducts.forEach(baseProd => {
-                const idx = merged.findIndex(p => String(p.id) === String(baseProd.id));
-                if (idx === -1) {
-                    merged.push(baseProd);
-                }
-            });
-            return merged;
-        }
-    } catch (e) {
-        console.error("Error loading products from localStorage:", e);
+    if (typeof window !== 'undefined' && window.MINE_MART_STORE_DATA && Array.isArray(window.MINE_MART_STORE_DATA.products) && window.MINE_MART_STORE_DATA.products.length > 0) {
+        const sourceData = window.MINE_MART_STORE_DATA.products;
+        try {
+            localStorage.setItem('mine_mart_products', JSON.stringify(sourceData));
+            idbSet('mine_mart_products', sourceData);
+        } catch(e) {}
+        return JSON.parse(JSON.stringify(sourceData));
     }
-    return defaultProducts;
+
+    const saved = localStorage.getItem('mine_mart_products');
+    if (saved) {
+        try {
+            const parsed = JSON.parse(saved);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+                return parsed;
+            }
+        } catch (e) {
+            console.error("Error loading products from localStorage:", e);
+        }
+    }
+
+    return JSON.parse(JSON.stringify(defaultProducts));
 }
 
 function loadMergedAdminCategories() {
+    if (typeof window !== 'undefined' && window.MINE_MART_STORE_DATA && Array.isArray(window.MINE_MART_STORE_DATA.categories) && window.MINE_MART_STORE_DATA.categories.length > 0) {
+        const sourceData = window.MINE_MART_STORE_DATA.categories;
+        try {
+            localStorage.setItem('mine_mart_categories', JSON.stringify(sourceData));
+            idbSet('mine_mart_categories', sourceData);
+        } catch(e) {}
+        return JSON.parse(JSON.stringify(sourceData));
+    }
+
     const saved = localStorage.getItem('mine_mart_categories');
-    if (!saved) return defaultCategories;
-    try {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-            let cats = [...parsed];
-            defaultCategories.forEach(defCat => {
-                if (!cats.some(c => c.slug === defCat.slug)) {
-                    cats.unshift(defCat);
-                }
-            });
-            return cats;
-        }
-    } catch (e) {}
-    return defaultCategories;
+    if (saved) {
+        try {
+            const parsed = JSON.parse(saved);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+                return parsed;
+            }
+        } catch (e) {}
+    }
+
+    return JSON.parse(JSON.stringify(defaultCategories));
 }
 
 function loadMergedAdminBanners() {
+    if (typeof window !== 'undefined' && window.MINE_MART_STORE_DATA && Array.isArray(window.MINE_MART_STORE_DATA.banners) && window.MINE_MART_STORE_DATA.banners.length > 0) {
+        const sourceData = window.MINE_MART_STORE_DATA.banners;
+        try {
+            localStorage.setItem('mine_mart_banners', JSON.stringify(sourceData));
+            idbSet('mine_mart_banners', sourceData);
+        } catch(e) {}
+        return JSON.parse(JSON.stringify(sourceData));
+    }
+
     const saved = localStorage.getItem('mine_mart_banners');
-    if (!saved) return defaultBanners;
-    try {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-    } catch (e) {}
-    return defaultBanners;
+    if (saved) {
+        try {
+            const parsed = JSON.parse(saved);
+            if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        } catch (e) {}
+    }
+
+    return JSON.parse(JSON.stringify(defaultBanners));
 }
 
 function loadMergedAdminCoupons() {
+    if (typeof window !== 'undefined' && window.MINE_MART_STORE_DATA && Array.isArray(window.MINE_MART_STORE_DATA.coupons) && window.MINE_MART_STORE_DATA.coupons.length > 0) {
+        const sourceData = window.MINE_MART_STORE_DATA.coupons;
+        try {
+            localStorage.setItem('mine_mart_coupons', JSON.stringify(sourceData));
+            idbSet('mine_mart_coupons', sourceData);
+        } catch(e) {}
+        return JSON.parse(JSON.stringify(sourceData));
+    }
+
     const saved = localStorage.getItem('mine_mart_coupons');
-    if (!saved) return defaultCoupons;
-    try {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-    } catch (e) {}
-    return defaultCoupons;
+    if (saved) {
+        try {
+            const parsed = JSON.parse(saved);
+            if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        } catch (e) {}
+    }
+
+    return JSON.parse(JSON.stringify(defaultCoupons));
 }
 
 // Seed Orders Default Data (Iraqi Governorates & Currencies)
@@ -491,20 +395,18 @@ const defaultOrders = [
 
 function loadMergedAdminOrders() {
     const saved = localStorage.getItem('mine_mart_orders');
-    if (!saved) return defaultOrders;
+    if (!saved) {
+        try {
+            localStorage.setItem('mine_mart_orders', JSON.stringify(defaultOrders));
+            idbSet('mine_mart_orders', defaultOrders);
+        } catch(e) {}
+        return JSON.parse(JSON.stringify(defaultOrders));
+    }
     try {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-            let orders = [...parsed];
-            defaultOrders.forEach(defOrd => {
-                if (!orders.some(o => o.id === defOrd.id)) {
-                    orders.push(defOrd);
-                }
-            });
-            return orders;
-        }
+        if (Array.isArray(parsed)) return parsed;
     } catch (e) {}
-    return defaultOrders;
+    return JSON.parse(JSON.stringify(defaultOrders));
 }
 
 // Seed Staff & Roles Default Data
@@ -516,20 +418,18 @@ const defaultStaff = [
 
 function loadMergedAdminStaff() {
     const saved = localStorage.getItem('mine_mart_staff');
-    if (!saved) return defaultStaff;
+    if (!saved) {
+        try {
+            localStorage.setItem('mine_mart_staff', JSON.stringify(defaultStaff));
+            idbSet('mine_mart_staff', defaultStaff);
+        } catch(e) {}
+        return JSON.parse(JSON.stringify(defaultStaff));
+    }
     try {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-            let staffList = [...parsed];
-            defaultStaff.forEach(defS => {
-                if (!staffList.some(s => s.email === defS.email || s.id === defS.id)) {
-                    staffList.push(defS);
-                }
-            });
-            return staffList;
-        }
+        if (Array.isArray(parsed)) return parsed;
     } catch (e) {}
-    return defaultStaff;
+    return JSON.parse(JSON.stringify(defaultStaff));
 }
 
 // Load Saved State
@@ -544,6 +444,60 @@ let editingProductId = null;
 let currentModalOrderId = null;
 let currentProductImages = [];
 let currentPrimaryImageIndex = 0;
+
+// Sync full state to physical JSON files in D:\mine mart\mine mart market\data\
+async function syncStateToDiskFiles() {
+    try {
+        const payload = {
+            products: adminProducts,
+            categories: adminCategories,
+            banners: adminBanners,
+            coupons: adminCoupons,
+            orders: adminOrders,
+            staff: adminStaff
+        };
+
+        const res = await fetch(`${API_BASE}/sync`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        if (res.ok) {
+            updateDiskSyncIndicator(true);
+        } else {
+            updateDiskSyncIndicator(false);
+        }
+    } catch(err) {
+        updateDiskSyncIndicator(false);
+    }
+}
+
+function updateDiskSyncIndicator(isOnline) {
+    const pill = document.getElementById('diskSyncStatusPill');
+    const text = document.getElementById('diskSyncStatusText');
+    const serverBtn = document.getElementById('serverSwitchBtn');
+    
+    if (serverBtn) {
+        if (window.location.protocol === 'file:') {
+            serverBtn.style.display = 'inline-flex';
+        } else {
+            serverBtn.style.display = 'none';
+        }
+    }
+
+    if (!pill || !text) return;
+    if (isOnline) {
+        text.innerText = 'متزامن مع ملفات المشروع 📁';
+        text.style.color = 'var(--neon-green)';
+        const dot = pill.querySelector('.pulse-dot');
+        if (dot) dot.style.background = 'var(--neon-green)';
+    } else {
+        text.innerText = 'تخزين محلي مؤقت 💾';
+        text.style.color = '#ffcc00';
+        const dot = pill.querySelector('.pulse-dot');
+        if (dot) dot.style.background = '#ffcc00';
+    }
+}
 
 // Save helper to guarantee persistence across page refreshes with quota protection & IndexedDB dual-sync
 function savePersistentData() {
@@ -565,66 +519,217 @@ function savePersistentData() {
     idbSet('mine_mart_coupons', adminCoupons);
     idbSet('mine_mart_orders', adminOrders);
     idbSet('mine_mart_staff', adminStaff);
+
+    // Save directly to project folder files (D:\mine mart\mine mart market\data\*.json)
+    syncStateToDiskFiles();
+
+    // Broadcast instant update across all open tabs and storefront pages
+    broadcastDataChange();
 }
 
-// Background sync from IndexedDB on startup
+// Background sync from backend server and project data/*.json files on startup
 async function initAsyncPersistenceSync() {
     try {
-        const idbProds = await idbGet('mine_mart_products');
-        if (Array.isArray(idbProds) && idbProds.length > 0) {
-            let hasNew = false;
-            idbProds.forEach(ip => {
-                const idx = adminProducts.findIndex(p => String(p.id) === String(ip.id));
-                if (idx === -1) {
-                    adminProducts.unshift(ip);
-                    hasNew = true;
+        let syncedFromServer = false;
+        try {
+            const res = await fetch(`${API_BASE}/sync`);
+            if (res.ok) {
+                const json = await res.json();
+                if (json.data) {
+                    if (Array.isArray(json.data.products) && json.data.products.length > 0) {
+                        adminProducts = json.data.products;
+                        try { localStorage.setItem('mine_mart_products', JSON.stringify(adminProducts)); } catch(e) {}
+                    }
+                    if (Array.isArray(json.data.categories) && json.data.categories.length > 0) {
+                        adminCategories = json.data.categories;
+                        try { localStorage.setItem('mine_mart_categories', JSON.stringify(adminCategories)); } catch(e) {}
+                    }
+                    if (Array.isArray(json.data.banners) && json.data.banners.length > 0) {
+                        adminBanners = json.data.banners;
+                        try { localStorage.setItem('mine_mart_banners', JSON.stringify(adminBanners)); } catch(e) {}
+                    }
+                    if (Array.isArray(json.data.coupons) && json.data.coupons.length > 0) {
+                        adminCoupons = json.data.coupons;
+                        try { localStorage.setItem('mine_mart_coupons', JSON.stringify(adminCoupons)); } catch(e) {}
+                    }
+                    if (Array.isArray(json.data.orders) && json.data.orders.length > 0) {
+                        adminOrders = json.data.orders;
+                        try { localStorage.setItem('mine_mart_orders', JSON.stringify(adminOrders)); } catch(e) {}
+                    }
+                    if (Array.isArray(json.data.staff) && json.data.staff.length > 0) {
+                        adminStaff = json.data.staff;
+                        try { localStorage.setItem('mine_mart_staff', JSON.stringify(adminStaff)); } catch(e) {}
+                    }
+                    syncedFromServer = true;
+                    updateDiskSyncIndicator(true);
                 }
-            });
-            if (hasNew) {
-                renderProductsTable();
-                updateOverviewStats();
-                try {
-                    localStorage.setItem('mine_mart_products', JSON.stringify(adminProducts));
-                } catch(e) {}
+            }
+        } catch(e) {
+            // Fallback to window.MINE_MART_STORE_DATA loaded from data-store.js
+            if (typeof window !== 'undefined' && window.MINE_MART_STORE_DATA) {
+                if (Array.isArray(window.MINE_MART_STORE_DATA.products) && window.MINE_MART_STORE_DATA.products.length > 0) {
+                    adminProducts = window.MINE_MART_STORE_DATA.products;
+                    try { localStorage.setItem('mine_mart_products', JSON.stringify(adminProducts)); } catch(e2) {}
+                }
+                if (Array.isArray(window.MINE_MART_STORE_DATA.categories) && window.MINE_MART_STORE_DATA.categories.length > 0) {
+                    adminCategories = window.MINE_MART_STORE_DATA.categories;
+                    try { localStorage.setItem('mine_mart_categories', JSON.stringify(adminCategories)); } catch(e2) {}
+                }
+                if (Array.isArray(window.MINE_MART_STORE_DATA.banners) && window.MINE_MART_STORE_DATA.banners.length > 0) {
+                    adminBanners = window.MINE_MART_STORE_DATA.banners;
+                    try { localStorage.setItem('mine_mart_banners', JSON.stringify(adminBanners)); } catch(e2) {}
+                }
+                if (Array.isArray(window.MINE_MART_STORE_DATA.coupons) && window.MINE_MART_STORE_DATA.coupons.length > 0) {
+                    adminCoupons = window.MINE_MART_STORE_DATA.coupons;
+                    try { localStorage.setItem('mine_mart_coupons', JSON.stringify(adminCoupons)); } catch(e2) {}
+                }
+                if (Array.isArray(window.MINE_MART_STORE_DATA.orders) && window.MINE_MART_STORE_DATA.orders.length > 0) {
+                    adminOrders = window.MINE_MART_STORE_DATA.orders;
+                    try { localStorage.setItem('mine_mart_orders', JSON.stringify(adminOrders)); } catch(e2) {}
+                }
+                if (Array.isArray(window.MINE_MART_STORE_DATA.staff) && window.MINE_MART_STORE_DATA.staff.length > 0) {
+                    adminStaff = window.MINE_MART_STORE_DATA.staff;
+                    try { localStorage.setItem('mine_mart_staff', JSON.stringify(adminStaff)); } catch(e2) {}
+                }
+                syncedFromServer = true;
             }
         }
+
+        renderProductsTable();
+        renderCategoriesTable();
+        renderBannersList();
+        renderCouponsTable();
+        renderOrdersTable();
+        renderStaffTable();
+        renderCategorySelectOptions();
+        updateOverviewStats();
     } catch(e) {}
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+// --------------------------------------------------------------------------
+// Backup, Export & Import Engine (For seamless multi-PC data portability)
+// --------------------------------------------------------------------------
+function exportFullDatabaseJSON() {
+    try {
+        const backupData = {
+            version: "2.9",
+            exportedAt: new Date().toISOString(),
+            products: adminProducts,
+            categories: adminCategories,
+            banners: adminBanners,
+            coupons: adminCoupons,
+            orders: adminOrders,
+            staff: adminStaff
+        };
+
+        const jsonStr = JSON.stringify(backupData, null, 2);
+        const blob = new Blob([jsonStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        const dateStr = new Date().toISOString().split('T')[0];
+        a.href = url;
+        a.download = `minemart_backup_${dateStr}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    } catch(e) {
+        alert('⚠️ حدث خطأ أثناء تصدير ملف النسخة الاحتياطية: ' + e.message);
+    }
+}
+
+function triggerImportJSONFile() {
+    const input = document.getElementById('importBackupFileInput');
+    if (input) {
+        input.value = '';
+        input.click();
+    }
+}
+
+async function handleImportJSONFile(event) {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async function(e) {
+        try {
+            const content = e.target.result;
+            const parsed = JSON.parse(content);
+
+            let prods = Array.isArray(parsed) ? parsed : (parsed.products || null);
+            let cats = parsed.categories || null;
+            let bans = parsed.banners || null;
+            let coups = parsed.coupons || null;
+            let ords = parsed.orders || null;
+            let stf = parsed.staff || null;
+
+            if (prods && Array.isArray(prods)) {
+                adminProducts = prods;
+            }
+            if (cats && Array.isArray(cats)) {
+                adminCategories = cats;
+            }
+            if (bans && Array.isArray(bans)) {
+                adminBanners = bans;
+            }
+            if (coups && Array.isArray(coups)) {
+                adminCoupons = coups;
+            }
+            if (ords && Array.isArray(ords)) {
+                adminOrders = ords;
+            }
+            if (stf && Array.isArray(stf)) {
+                adminStaff = stf;
+            }
+
+            savePersistentData();
+            initAdminDashboardApp();
+            alert(`✅ تم استيراد واسترجاع البيانات بنجاح! (${adminProducts.length} منتج، ${adminCategories.length} قسم). تم حفظها وتعميمها بنجاح.`);
+        } catch(err) {
+            alert('⚠️ فشل قراءة ملف النسخة الاحتياطية! تأكد من اختيار ملف JSON صالح.');
+            console.error('Error importing backup JSON:', err);
+        }
+    };
+    reader.readAsText(file);
+}
+
+async function forceSyncFromDiskOrServer() {
+    try {
+        localStorage.removeItem('mine_mart_products');
+        localStorage.removeItem('mine_mart_categories');
+        localStorage.removeItem('mine_mart_banners');
+        localStorage.removeItem('mine_mart_coupons');
+        localStorage.removeItem('mine_mart_orders');
+        await initAsyncPersistenceSync();
+        alert('🔄 تمت إعادة مزامنة وتحديث كافة البيانات من السيرفر وملفات المشروع بنجاح!');
+    } catch(err) {
+        alert('⚠️ تعذر المزامنة: ' + err.message);
+    }
+}
+
+
+function initAdminDashboardApp() {
     // Initial Render for all views from persistent state
-    renderCategoriesTable();
-    renderProductsTable();
-    renderBannersList();
-    renderCouponsTable();
-    renderOrdersTable();
-    renderStaffTable();
-    renderCategorySelectOptions();
-    updateOverviewStats();
+    try { renderCategoriesTable(); } catch(e) {}
+    try { renderProductsTable(); } catch(e) {}
+    try { renderBannersList(); } catch(e) {}
+    try { renderCouponsTable(); } catch(e) {}
+    try { renderOrdersTable(); } catch(e) {}
+    try { renderStaffTable(); } catch(e) {}
+    try { renderCategorySelectOptions(); } catch(e) {}
+    try { updateOverviewStats(); } catch(e) {}
 
     // Check IndexedDB for any additional persistent items
-    initAsyncPersistenceSync();
+    try { initAsyncPersistenceSync(); } catch(e) {}
 
-    checkAdminAuth();
+    try { checkAdminAuth(); } catch(e) {}
 
     // Tab Navigation
     document.querySelectorAll('.admin-nav-item').forEach(item => {
-        item.addEventListener('click', () => {
-            document.querySelectorAll('.admin-nav-item').forEach(i => i.classList.remove('active'));
-            document.querySelectorAll('.admin-tab-content').forEach(t => t.classList.remove('active'));
-
-            item.classList.add('active');
+        item.addEventListener('click', (e) => {
+            if (e && e.preventDefault) e.preventDefault();
             const targetTabId = item.getAttribute('data-tab');
-            const targetTab = document.getElementById(targetTabId);
-            if (targetTab) {
-                targetTab.classList.add('active');
-                if (targetTabId === 'tab-security') renderStaffTable();
-                else if (targetTabId === 'tab-products') renderProductsTable();
-                else if (targetTabId === 'tab-categories') renderCategoriesTable();
-                else if (targetTabId === 'tab-promotions') { renderBannersList(); renderCouponsTable(); }
-                else if (targetTabId === 'tab-orders') renderOrdersTable();
-                else if (targetTabId === 'tab-overview') updateOverviewStats();
-            }
+            if (targetTabId) switchTab(targetTabId);
         });
     });
 
@@ -676,8 +781,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('adminGlobalSearch');
     if (searchInput) {
         searchInput.addEventListener('input', (e) => {
-            const query = e.target.value.toLowerCase().trim();
-            renderProductsTable(query);
+            renderProductsTable(e.target.value.trim().toLowerCase());
         });
     }
 
@@ -711,7 +815,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const closeStaffBtn = document.getElementById('closeStaffModal');
     if (closeStaffBtn) closeStaffBtn.addEventListener('click', closeStaffModalForm);
-});
+}
+
+// Execute immediately if DOM is ready, or on DOMContentLoaded
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    initAdminDashboardApp();
+} else {
+    document.addEventListener('DOMContentLoaded', initAdminDashboardApp);
+}
 
 // Modal Controller Functions
 function openAddCategoryModalForm() {
@@ -779,6 +890,112 @@ function handleProductOriginalPriceIQDChange(val) {
     }
 }
 
+// Dynamic Product Variant Options State (Colors & Sizes)
+let currentProductColors = [];
+let currentProductSizes = [];
+
+function toggleProductColorsInput(enabled) {
+    const container = document.getElementById('pColorsContainer');
+    if (container) container.style.display = enabled ? 'block' : 'none';
+}
+
+function toggleProductSizesInput(enabled) {
+    const container = document.getElementById('pSizesContainer');
+    if (container) container.style.display = enabled ? 'block' : 'none';
+}
+
+function renderAdminColorChips() {
+    const listEl = document.getElementById('pColorsChipList');
+    if (!listEl) return;
+    if (!currentProductColors || currentProductColors.length === 0) {
+        listEl.innerHTML = `<span style="color:var(--text-muted); font-size:0.8rem; padding:0.25rem;">لا توجد ألوان مضافة بعد.</span>`;
+        return;
+    }
+    listEl.innerHTML = currentProductColors.map((col, idx) => `
+        <div style="display:inline-flex; align-items:center; gap:0.4rem; background:rgba(255,255,255,0.06); border:1px solid rgba(118,230,17,0.3); border-radius:15px; padding:0.2rem 0.6rem; font-size:0.82rem; color:#fff;">
+            <span style="width:12px; height:12px; border-radius:50%; background:${col.hex || '#76e611'}; display:inline-block; border:1px solid #fff;"></span>
+            <span>${col.name}</span>
+            <button type="button" onclick="removeAdminProductColorChip(${idx})" style="background:none; border:none; color:#ff3366; cursor:pointer; font-weight:bold; font-size:0.95rem; line-height:1; padding:0 2px;">&times;</button>
+        </div>
+    `).join('');
+}
+
+function addAdminProductColorChip() {
+    const nameEl = document.getElementById('pNewColorName');
+    const hexEl = document.getElementById('pNewColorHex');
+    const name = nameEl ? nameEl.value.trim() : '';
+    const hex = hexEl ? hexEl.value : '#76e611';
+
+    if (!name) {
+        alert("يرجى كتابة اسم اللون أولاً (مثال: أخضر نيون 🟩)");
+        if (nameEl) nameEl.focus();
+        return;
+    }
+
+    currentProductColors.push({ name: name, hex: hex });
+    if (nameEl) nameEl.value = '';
+    renderAdminColorChips();
+}
+
+function removeAdminProductColorChip(idx) {
+    if (idx >= 0 && idx < currentProductColors.length) {
+        currentProductColors.splice(idx, 1);
+        renderAdminColorChips();
+    }
+}
+
+function renderAdminSizeChips() {
+    const listEl = document.getElementById('pSizesChipList');
+    if (!listEl) return;
+    if (!currentProductSizes || currentProductSizes.length === 0) {
+        listEl.innerHTML = `<span style="color:var(--text-muted); font-size:0.8rem; padding:0.25rem;">لا توجد قياسات مضافة بعد.</span>`;
+        return;
+    }
+    listEl.innerHTML = currentProductSizes.map((sz, idx) => {
+        const sName = typeof sz === 'string' ? sz : sz.name;
+        const sPriceIQD = (typeof sz === 'object' && sz.priceIQD) ? sz.priceIQD : null;
+        const priceLabel = sPriceIQD ? ` <strong style="color:var(--neon-green); margin-right:4px;">(${sPriceIQD.toLocaleString('en-US')} د.ع)</strong>` : '';
+        return `
+            <div style="display:inline-flex; align-items:center; gap:0.4rem; background:rgba(255,255,255,0.06); border:1px solid rgba(118,230,17,0.3); border-radius:15px; padding:0.25rem 0.7rem; font-size:0.82rem; color:#fff;">
+                <i class="fa-solid fa-ruler" style="color:var(--neon-green); font-size:0.75rem;"></i>
+                <span>${sName}${priceLabel}</span>
+                <button type="button" onclick="removeAdminProductSizeChip(${idx})" style="background:none; border:none; color:#ff3366; cursor:pointer; font-weight:bold; font-size:0.95rem; line-height:1; padding:0 2px; margin-right:4px;">&times;</button>
+            </div>
+        `;
+    }).join('');
+}
+
+function addAdminProductSizeChip() {
+    const nameEl = document.getElementById('pNewSizeName');
+    const priceIQDEl = document.getElementById('pNewSizePriceIQD');
+    const name = nameEl ? nameEl.value.trim() : '';
+    const priceIQD = (priceIQDEl && priceIQDEl.value !== '') ? parseFloat(priceIQDEl.value.replace(/,/g, '')) : null;
+
+    if (!name) {
+        alert("يرجى كتابة اسم أو أبعاد القياس (مثال: صغير (10 سم) أو XL)");
+        if (nameEl) nameEl.focus();
+        return;
+    }
+
+    const sizeObj = {
+        name: name,
+        priceIQD: (priceIQD && priceIQD > 0) ? priceIQD : null,
+        priceUSD: (priceIQD && priceIQD > 0) ? Math.round((priceIQD / EXCHANGE_RATE_USD_TO_IQD) * 100) / 100 : null
+    };
+
+    currentProductSizes.push(sizeObj);
+    if (nameEl) nameEl.value = '';
+    if (priceIQDEl) priceIQDEl.value = '';
+    renderAdminSizeChips();
+}
+
+function removeAdminProductSizeChip(idx) {
+    if (idx >= 0 && idx < currentProductSizes.length) {
+        currentProductSizes.splice(idx, 1);
+        renderAdminSizeChips();
+    }
+}
+
 function openAddProductModalForm() {
     editingProductId = null;
     const editIdEl = document.getElementById('productEditId');
@@ -797,6 +1014,28 @@ function openAddProductModalForm() {
     const origPriceIQDEl = document.getElementById('pOriginalPriceIQD');
     if (origPriceIQDEl) origPriceIQDEl.value = '';
     handleProductOriginalPriceIQDChange(0);
+
+    // Initialize Default Variant Options (Colors & Sizes)
+    const enableColorsEl = document.getElementById('pEnableColors');
+    if (enableColorsEl) enableColorsEl.checked = true;
+    toggleProductColorsInput(true);
+    currentProductColors = [
+        { name: 'أخضر نيون 🟩', hex: '#76e611' },
+        { name: 'أسود أوبسيديان ⬛', hex: '#1a1a1a' },
+        { name: 'أزرق ألماسي 🟦', hex: '#00d2ff' },
+        { name: 'ذهبي برتقالي 🟧', hex: '#ffaa00' }
+    ];
+    renderAdminColorChips();
+
+    const enableSizesEl = document.getElementById('pEnableSizes');
+    if (enableSizesEl) enableSizesEl.checked = true;
+    toggleProductSizesInput(true);
+    currentProductSizes = [
+        { name: 'صغير (10 سم)', priceIQD: 45000, priceUSD: 34.09 },
+        { name: 'متوسط (18 سم)', priceIQD: 59000, priceUSD: 44.70 },
+        { name: 'كبير (26 سم)', priceIQD: 75000, priceUSD: 56.82 }
+    ];
+    renderAdminSizeChips();
 
     renderCategorySelectOptions();
     const modal = document.getElementById('adminProductModal');
@@ -1115,7 +1354,52 @@ function optimizeAndResizeImage(file, options = {}) {
     });
 }
 
-// Helper to upload image to server (Multer) or return lightweight optimized thumbnail
+// Helper to save base64 / blob image to server under custom sanitized name
+async function saveImageToServer(dataUrlOrPath, name, index = null) {
+    if (!dataUrlOrPath || typeof dataUrlOrPath !== 'string') return dataUrlOrPath;
+    if (!dataUrlOrPath.startsWith('data:image/')) return dataUrlOrPath;
+
+    try {
+        const res = await fetch(`${API_BASE}/save-image`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                data: dataUrlOrPath,
+                name: name,
+                index: index
+            })
+        });
+        if (res.ok) {
+            const json = await res.json();
+            if (json && json.filePath) {
+                return json.filePath;
+            }
+        }
+    } catch(e) {
+        console.warn("Failed to save named image to server:", e);
+    }
+    return dataUrlOrPath;
+}
+
+// Helper to delete physical image files from server storage
+async function deleteImagesFromServer(imagePaths) {
+    if (!imagePaths) return;
+    const paths = Array.isArray(imagePaths) ? imagePaths : [imagePaths];
+    const validPaths = paths.filter(p => typeof p === 'string' && p.startsWith('assets/images/'));
+    if (validPaths.length === 0) return;
+
+    try {
+        await fetch(`${API_BASE}/delete-images`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ images: validPaths })
+        });
+    } catch(e) {
+        console.warn("Failed to delete images from server:", e);
+    }
+}
+
+// Helper to optimize image for preview and defer physical file creation until form submission
 async function uploadOrOptimizeImage(file, options = {}) {
     const {
         maxWidth = 600,
@@ -1131,20 +1415,7 @@ async function uploadOrOptimizeImage(file, options = {}) {
         quality
     });
 
-    // 1. Try uploading to backend server first (returns short disk path: assets/images/upload_xxx.jpg)
-    try {
-        const formData = new FormData();
-        formData.append('image', opt.blob, file.name || 'upload.jpg');
-        const res = await fetch(`${API_BASE}/upload`, { method: 'POST', body: formData });
-        if (res.ok) {
-            const data = await res.json();
-            if (data && data.filePath) {
-                return data.filePath;
-            }
-        }
-    } catch(e) {}
-
-    // 2. Fallback: return lightweight compressed base64 (~15-20KB)
+    // Return dataUrl for client-side instant preview (single physical file is created upon Save Form)
     return opt.dataUrl;
 }
 
@@ -1153,12 +1424,16 @@ async function handleBannerFileSelect(event) {
     const file = event.target.files[0];
     if (!file) return;
 
+    const bTitleEl = document.getElementById('bTitle');
+    const customName = bTitleEl ? bTitleEl.value.trim() : 'بنر_الهيرو';
+
     try {
         const filePathOrData = await uploadOrOptimizeImage(file, {
             maxWidth: 1280,
             maxHeight: 720,
             aspectRatio: 16 / 9,
-            quality: 0.85
+            quality: 0.85,
+            customName: customName
         });
 
         const previewWrap = document.getElementById('bannerImgPreview');
@@ -1178,12 +1453,16 @@ async function handleCatFileSelect(event) {
     const file = event.target.files[0];
     if (!file) return;
 
+    const catNameEl = document.getElementById('catName');
+    const customName = catNameEl ? catNameEl.value.trim() : 'قسم';
+
     try {
         const filePathOrData = await uploadOrOptimizeImage(file, {
             maxWidth: 600,
             maxHeight: 600,
             aspectRatio: 1 / 1,
-            quality: 0.85
+            quality: 0.85,
+            customName: customName
         });
 
         const previewWrap = document.getElementById('catImgPreview');
@@ -1203,11 +1482,16 @@ async function handleProdFileSelect(event) {
     const file = event.target.files[0];
     if (!file) return;
 
+    const pNameEl = document.getElementById('pName');
+    const customName = pNameEl ? pNameEl.value.trim() : 'منتج';
+
     try {
         const filePathOrData = await uploadOrOptimizeImage(file, {
-            maxWidth: 600,
-            maxHeight: 600,
-            quality: 0.82
+            maxWidth: 1080,
+            maxHeight: 1350,
+            aspectRatio: 4 / 5,
+            quality: 0.88,
+            customName: customName
         });
         currentProductImages = [filePathOrData];
         currentPrimaryImageIndex = 0;
@@ -1217,22 +1501,31 @@ async function handleProdFileSelect(event) {
     }
 }
 
-// Multi-Image Upload & Gallery Handlers with Smart Auto-Resize
+// Multi-Image Upload & Gallery Handlers with Smart Auto-Resize (1080 x 1350)
 async function handleProdMultipleFilesSelect(event) {
     const files = Array.from(event.target.files || []);
     if (files.length === 0) return;
 
+    const pNameEl = document.getElementById('pName');
+    const customName = pNameEl ? pNameEl.value.trim() : 'منتج';
+
     const galleryEl = document.getElementById('pImagesGalleryPreview');
     if (galleryEl && (!currentProductImages || currentProductImages.length === 0)) {
-        galleryEl.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:1rem; color:var(--neon-green); font-size:0.9rem;"><i class="fa-solid fa-spinner fa-spin"></i> جاري معالجة ورفع الصور بأعلى دقة...</div>`;
+        galleryEl.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:1rem; color:var(--neon-green); font-size:0.9rem;"><i class="fa-solid fa-spinner fa-spin"></i> جاري معالجة ورفع الصور بأعلى دقة 1080×1350...</div>`;
     }
 
-    for (const file of files) {
+    let startIdx = currentProductImages.length;
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const imageIndex = files.length > 1 || startIdx > 0 ? (startIdx + i + 1) : null;
         try {
             const filePathOrData = await uploadOrOptimizeImage(file, {
-                maxWidth: 600,
-                maxHeight: 600,
-                quality: 0.82
+                maxWidth: 1080,
+                maxHeight: 1350,
+                aspectRatio: 4 / 5,
+                quality: 0.88,
+                customName: customName,
+                imageIndex: imageIndex
             });
             currentProductImages.push(filePathOrData);
         } catch(err) {
@@ -1284,8 +1577,13 @@ function renderProductImagesGallery() {
     }).join('');
 }
 
-function removeProductGalleryImage(idx) {
+async function removeProductGalleryImage(idx) {
     if (idx >= 0 && idx < currentProductImages.length) {
+        const removedImg = currentProductImages[idx];
+        // Delete image file from server if it is a saved physical file
+        if (removedImg && typeof removedImg === 'string' && removedImg.startsWith('assets/images/')) {
+            await deleteImagesFromServer(removedImg);
+        }
         currentProductImages.splice(idx, 1);
         if (currentPrimaryImageIndex >= currentProductImages.length) {
             currentPrimaryImageIndex = Math.max(0, currentProductImages.length - 1);
@@ -1302,7 +1600,7 @@ function setProductPrimaryImage(idx) {
 }
 
 // Category Form Submit Handler
-function handleCategoryFormSubmit(e) {
+async function handleCategoryFormSubmit(e) {
     if (e && e.preventDefault) e.preventDefault();
     const editIdEl = document.getElementById('categoryEditId');
     const editId = (editIdEl && editIdEl.value !== undefined) ? String(editIdEl.value).trim() : '';
@@ -1312,13 +1610,18 @@ function handleCategoryFormSubmit(e) {
     const slugEl = document.getElementById('catSlug');
     const catSlug = slugEl ? String(slugEl.value).trim().toLowerCase() : '';
     const imgEl = document.getElementById('catImg');
-    const catImg = (imgEl && imgEl.value) ? imgEl.value : 'assets/images/prod_fox.jpg';
+    let catImg = (imgEl && imgEl.value) ? imgEl.value : 'assets/images/prod_fox.jpg';
     const descEl = document.getElementById('catDesc');
     const catDesc = descEl ? String(descEl.value).trim() : '';
 
     if (!catName || !catSlug) {
         alert("يرجى ملء اسم القسم ورمزه بالإنكليزية (Slug)");
         return false;
+    }
+
+    // Save image with category name if it is base64
+    if (catImg.startsWith('data:image/')) {
+        catImg = await saveImageToServer(catImg, catName);
     }
 
     if (editId) {
@@ -1374,7 +1677,7 @@ function handleCategoryFormSubmit(e) {
 }
 
 // Product Form Submit Handler (IQD and Auto-Converted USD Support)
-function handleProductFormSubmit(e) {
+async function handleProductFormSubmit(e) {
     if (e && e.preventDefault) e.preventDefault();
     try {
         const editIdEl = document.getElementById('productEditId');
@@ -1423,14 +1726,36 @@ function handleProductFormSubmit(e) {
 
         const discountPercent = (pOriginalPrice && pOriginalPrice > pPrice) ? Math.round(((pOriginalPrice - pPrice) / pOriginalPrice) * 100) : 0;
 
-        let finalImages = (currentProductImages && Array.isArray(currentProductImages) && currentProductImages.length > 0) 
-            ? [...currentProductImages] 
+        // Save all images to physical files named with product name + index
+        let processedImages = [];
+        let rawImgs = (currentProductImages && Array.isArray(currentProductImages) && currentProductImages.length > 0)
+            ? [...currentProductImages]
             : ['assets/images/prod_fox.jpg'];
+
+        const totalImgs = rawImgs.length;
+        for (let i = 0; i < totalImgs; i++) {
+            const imgItem = rawImgs[i];
+            const imgIndex = totalImgs > 1 ? (i + 1) : null;
+            const savedPath = await saveImageToServer(imgItem, pName, imgIndex);
+            processedImages.push(savedPath);
+        }
+
+        let finalImages = processedImages.length > 0 ? processedImages : ['assets/images/prod_fox.jpg'];
 
         if (currentPrimaryImageIndex < 0 || currentPrimaryImageIndex >= finalImages.length) {
             currentPrimaryImageIndex = 0;
         }
         const primaryImg = finalImages[currentPrimaryImageIndex] || finalImages[0];
+
+        // Variants Options (Colors & Sizes)
+        const enableColorsEl = document.getElementById('pEnableColors');
+        const hasColors = enableColorsEl ? enableColorsEl.checked : true;
+
+        const enableSizesEl = document.getElementById('pEnableSizes');
+        const hasSizes = enableSizesEl ? enableSizesEl.checked : true;
+
+        const savedColors = hasColors ? [...currentProductColors] : [];
+        const savedSizes = hasSizes ? [...currentProductSizes] : [];
 
         if (editId) {
             const prod = adminProducts.find(p => String(p.id) === String(editId));
@@ -1448,6 +1773,10 @@ function handleProductFormSubmit(e) {
                 prod.images = finalImages;
                 prod.desc = pDesc;
                 prod.description = pDesc;
+                prod.hasColors = hasColors;
+                prod.colors = savedColors;
+                prod.hasSizes = hasSizes;
+                prod.sizes = savedSizes;
             } else {
                 const newProd = {
                     id: isNaN(Number(editId)) ? Date.now() : Number(editId),
@@ -1465,7 +1794,11 @@ function handleProductFormSubmit(e) {
                     image: primaryImg,
                     images: finalImages,
                     desc: pDesc,
-                    description: pDesc
+                    description: pDesc,
+                    hasColors: hasColors,
+                    colors: savedColors,
+                    hasSizes: hasSizes,
+                    sizes: savedSizes
                 };
                 adminProducts.unshift(newProd);
             }
@@ -1486,7 +1819,11 @@ function handleProductFormSubmit(e) {
                 image: primaryImg,
                 images: finalImages,
                 desc: pDesc,
-                description: pDesc
+                description: pDesc,
+                hasColors: hasColors,
+                colors: savedColors,
+                hasSizes: hasSizes,
+                sizes: savedSizes
             };
             adminProducts.unshift(newProd);
         }
@@ -1640,29 +1977,44 @@ function handleStaffFormSubmit(e) {
     return false;
 }
 
-function handleAdminLoginSubmit(e) {
-    if (e) e.preventDefault();
+async function handleAdminLoginSubmit(e) {
+    if (e) {
+        try { if (typeof e.preventDefault === 'function') e.preventDefault(); } catch(_) {}
+        try { if (typeof e.stopPropagation === 'function') e.stopPropagation(); } catch(_) {}
+    }
     const emailEl = document.getElementById('loginEmail');
     const passwordEl = document.getElementById('loginPassword');
     const email = emailEl ? emailEl.value.trim() : 'admin@minemart.shop';
     const password = passwordEl ? passwordEl.value.trim() : 'admin123456password';
+    const btn = document.getElementById('adminLoginBtn');
 
-    fetch(`${API_BASE}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ email, password })
-    }).then(res => res.json()).then(data => {
-        sessionStorage.setItem('admin_logged_in', 'true');
-        if (data && data.status === 'success') {
+    if (btn) {
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري فتح لوحة التحكم...';
+    }
+
+    // 1. Instant local unlock so there is ZERO waiting or blocking
+    sessionStorage.setItem('admin_logged_in', 'true');
+    unlockAdminDashboard({ name: 'سعد القحطاني', role: 'Admin' });
+
+    // 2. Background verification
+    try {
+        const res = await fetch(`${API_BASE}/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        if (data && data.status === 'success' && data.data && data.data.user) {
             unlockAdminDashboard(data.data.user);
-        } else {
-            unlockAdminDashboard({ name: 'سعد القحطاني', role: 'Admin' });
         }
-    }).catch(() => {
-        sessionStorage.setItem('admin_logged_in', 'true');
-        unlockAdminDashboard({ name: 'سعد القحطاني', role: 'Admin' });
-    });
+    } catch (err) {
+        console.log("Local Dashboard Access Active:", err.message);
+    } finally {
+        if (btn) {
+            btn.innerHTML = 'تسجيل الدخول الآمن <i class="fa-solid fa-shield-halved"></i>';
+        }
+    }
+    return false;
 }
 
 async function checkAdminAuth() {
@@ -1672,26 +2024,35 @@ async function checkAdminAuth() {
     }
 
     try {
-        const response = await fetch(`${API_BASE}/auth/me`, { credentials: 'include' });
-        const data = await response.json();
-        if (response.ok && data.status === 'success') {
-            unlockAdminDashboard(data.data.user);
+        const response = await fetch(`${API_BASE}/auth/me`);
+        if (response.ok) {
+            const data = await response.json();
+            if (data && data.status === 'success' && data.data && data.data.user) {
+                unlockAdminDashboard(data.data.user);
+            }
         }
     } catch (e) {}
 }
 
 function unlockAdminDashboard(user) {
+    sessionStorage.setItem('admin_logged_in', 'true');
     const modal = document.getElementById('adminAuthModal');
     const wrapper = document.getElementById('adminDashboardWrapper');
     
     if (modal) {
         modal.classList.remove('active');
-        modal.style.display = 'none';
+        modal.classList.add('hidden');
+        modal.style.setProperty('display', 'none', 'important');
+        modal.style.setProperty('visibility', 'hidden', 'important');
+        modal.style.setProperty('opacity', '0', 'important');
+        modal.style.setProperty('pointer-events', 'none', 'important');
+        modal.style.setProperty('z-index', '-9999', 'important');
     }
     
     if (wrapper) {
-        wrapper.style.filter = 'none';
-        wrapper.style.pointerEvents = 'all';
+        wrapper.style.setProperty('filter', 'none', 'important');
+        wrapper.style.setProperty('pointer-events', 'auto', 'important');
+        wrapper.style.setProperty('opacity', '1', 'important');
     }
 
     const userNameEl = document.getElementById('adminUserName');
@@ -1699,14 +2060,14 @@ function unlockAdminDashboard(user) {
     const userRoleEl = document.getElementById('adminUserRole');
     if (userRoleEl && user && user.role) userRoleEl.innerText = `مدير النظام (${user.role})`;
 
-    renderCategoriesTable();
-    renderProductsTable();
-    renderBannersList();
-    renderCouponsTable();
-    renderOrdersTable();
-    renderStaffTable();
-    renderCategorySelectOptions();
-    updateOverviewStats();
+    try { renderCategoriesTable(); } catch(e) {}
+    try { renderProductsTable(); } catch(e) {}
+    try { renderBannersList(); } catch(e) {}
+    try { renderCouponsTable(); } catch(e) {}
+    try { renderOrdersTable(); } catch(e) {}
+    try { renderStaffTable(); } catch(e) {}
+    try { renderCategorySelectOptions(); } catch(e) {}
+    try { updateOverviewStats(); } catch(e) {}
 }
 
 function updateOverviewStats() {
@@ -1893,7 +2254,7 @@ function renderBannersList() {
     }).join('');
 }
 
-function handleBannerFormSubmit(e) {
+async function handleBannerFormSubmit(e) {
     if (e) e.preventDefault();
     const editIdEl = document.getElementById('bannerEditId');
     const editId = (editIdEl && editIdEl.value !== undefined) ? String(editIdEl.value).trim() : '';
@@ -1927,7 +2288,12 @@ function handleBannerFormSubmit(e) {
     const bBadgeIcon = (badgeIconEl && badgeIconEl.value !== undefined && String(badgeIconEl.value).trim()) ? String(badgeIconEl.value).trim() : 'fa-solid fa-tag';
 
     const imgEl = document.getElementById('bImg');
-    const bImg = (imgEl && imgEl.value) ? imgEl.value : 'assets/images/hero_bg.jpg';
+    let bImg = (imgEl && imgEl.value) ? imgEl.value : 'assets/images/hero_bg.jpg';
+
+    // Save image with banner title if base64
+    if (bImg.startsWith('data:image/')) {
+        bImg = await saveImageToServer(bImg, bTitle);
+    }
 
     const descEl = document.getElementById('bDesc');
     const bDesc = (descEl && descEl.value !== undefined) ? String(descEl.value).trim() : '';
@@ -2043,16 +2409,20 @@ function editBanner(bannerId) {
     }
 }
 
-function deleteBanner(bannerId) {
-    if (confirm("هل أنت متأكد من رغبتك في حذف هذا البنر من سلايدر الصفحة الرئيسية؟")) {
-        adminBanners = adminBanners.filter(b => b.id !== bannerId);
+async function deleteBanner(bannerId) {
+    if (confirm("هل أنت متأكد من رغبتك في حذف هذا البنر؟ سيتم حذف صورته من المجلد.")) {
+        const bannerToDelete = adminBanners.find(b => String(b.id) === String(bannerId));
+        if (bannerToDelete && bannerToDelete.image) {
+            await deleteImagesFromServer(bannerToDelete.image);
+        }
+        adminBanners = adminBanners.filter(b => String(b.id) !== String(bannerId));
         savePersistentData();
         renderBannersList();
     }
 }
 
 function toggleBannerStatus(bannerId) {
-    const b = adminBanners.find(item => item.id === bannerId);
+    const b = adminBanners.find(item => String(item.id) === String(bannerId));
     if (b) {
         b.status = b.status === 'active' ? 'inactive' : 'active';
         savePersistentData();
@@ -2213,7 +2583,7 @@ function renderOrdersTable() {
 }
 
 function openOrderDetailsModal(orderId) {
-    const o = adminOrders.find(item => item.id === orderId);
+    const o = adminOrders.find(item => String(item.id) === String(orderId));
     if (!o) return;
 
     currentModalOrderId = orderId;
@@ -2326,7 +2696,7 @@ function handleModalOrderStatusChange(newStatus) {
 }
 
 function updateOrderStatus(orderId, newStatus) {
-    const o = adminOrders.find(item => item.id === orderId);
+    const o = adminOrders.find(item => String(item.id) === String(orderId));
     if (o) {
         o.status = newStatus;
         savePersistentData();
@@ -2347,13 +2717,13 @@ function updateOrderStatus(orderId, newStatus) {
 
 function deleteOrder(orderId) {
     if (confirm(`هل أنت متأكد من حذف الطلب #${orderId} نهائياً؟`)) {
-        adminOrders = adminOrders.filter(o => o.id !== orderId);
+        adminOrders = adminOrders.filter(o => String(o.id) !== String(orderId));
         savePersistentData();
 
         // Also delete from user orders in localStorage
         try {
             let userOrders = JSON.parse(localStorage.getItem('minemart_user_orders')) || [];
-            userOrders = userOrders.filter(uO => uO.id !== orderId);
+            userOrders = userOrders.filter(uO => String(uO.id) !== String(orderId));
             localStorage.setItem('minemart_user_orders', JSON.stringify(userOrders));
         } catch (e) {}
 
@@ -2463,6 +2833,41 @@ function editProduct(prodId) {
     currentPrimaryImageIndex = primaryIdx !== -1 ? primaryIdx : 0;
     renderProductImagesGallery();
 
+    // Populate Product Colors Options
+    const hasColors = p.hasColors !== undefined ? Boolean(p.hasColors) : (p.colors && p.colors.length > 0);
+    const enableColorsEl = document.getElementById('pEnableColors');
+    if (enableColorsEl) enableColorsEl.checked = hasColors;
+    toggleProductColorsInput(hasColors);
+
+    if (p.colors && Array.isArray(p.colors) && p.colors.length > 0) {
+        currentProductColors = p.colors.map(c => typeof c === 'string' ? { name: c, hex: '#76e611' } : c);
+    } else {
+        currentProductColors = [
+            { name: 'أخضر نيون 🟩', hex: '#76e611' },
+            { name: 'أسود أوبسيديان ⬛', hex: '#1a1a1a' },
+            { name: 'أزرق ألماسي 🟦', hex: '#00d2ff' },
+            { name: 'ذهبي برتقالي 🟧', hex: '#ffaa00' }
+        ];
+    }
+    renderAdminColorChips();
+
+    // Populate Product Sizes Options
+    const hasSizes = p.hasSizes !== undefined ? Boolean(p.hasSizes) : (p.sizes && p.sizes.length > 0);
+    const enableSizesEl = document.getElementById('pEnableSizes');
+    if (enableSizesEl) enableSizesEl.checked = hasSizes;
+    toggleProductSizesInput(hasSizes);
+
+    if (p.sizes && Array.isArray(p.sizes) && p.sizes.length > 0) {
+        currentProductSizes = p.sizes.map(sz => typeof sz === 'string' ? { name: sz, priceIQD: null, priceUSD: null } : sz);
+    } else {
+        currentProductSizes = [
+            { name: 'صغير (10 سم)', priceIQD: 45000, priceUSD: 34.09 },
+            { name: 'متوسط (18 سم)', priceIQD: 59000, priceUSD: 44.70 },
+            { name: 'كبير (26 سم)', priceIQD: 75000, priceUSD: 56.82 }
+        ];
+    }
+    renderAdminSizeChips();
+
     const modal = document.getElementById('adminProductModal');
     if (modal) {
         modal.classList.add('active');
@@ -2470,12 +2875,40 @@ function editProduct(prodId) {
     }
 }
 
-function deleteProduct(prodId) {
-    if (confirm("هل أنت متأكد من إزالة هذا المنتج؟")) {
+async function deleteProduct(prodId) {
+    if (confirm("هل أنت متأكد من إزالة هذا المنتج؟ سيتم حذف بياناته وصوره بالكامل من المجلد لتوفير المساحة.")) {
+        const prodToDelete = adminProducts.find(p => String(p.id) === String(prodId));
+        if (prodToDelete) {
+            const imagesToDelete = [];
+            if (prodToDelete.image) imagesToDelete.push(prodToDelete.image);
+            if (Array.isArray(prodToDelete.images)) {
+                prodToDelete.images.forEach(img => {
+                    if (img && !imagesToDelete.includes(img)) imagesToDelete.push(img);
+                });
+            }
+            // Delete physical image files from disk folder
+            await deleteImagesFromServer(imagesToDelete);
+        }
+
         adminProducts = adminProducts.filter(p => String(p.id) !== String(prodId));
         savePersistentData();
         renderProductsTable();
         renderCategoriesTable();
+        updateOverviewStats();
+    }
+}
+
+async function deleteCategory(catId) {
+    if (confirm("هل أنت متأكد من حذف هذا القسم؟")) {
+        const catToDelete = adminCategories.find(c => String(c.id) === String(catId));
+        if (catToDelete && catToDelete.image) {
+            await deleteImagesFromServer(catToDelete.image);
+        }
+        adminCategories = adminCategories.filter(c => String(c.id) !== String(catId));
+        savePersistentData();
+        renderCategoriesTable();
+        renderCategorySelectOptions();
+        updateOverviewStats();
     }
 }
 
@@ -2508,8 +2941,23 @@ function restoreAllDefaultProducts() {
 }
 
 function switchTab(tabId) {
+    if (!tabId) return;
+    document.querySelectorAll('.admin-nav-item').forEach(i => i.classList.remove('active'));
+    document.querySelectorAll('.admin-tab-content').forEach(t => t.classList.remove('active'));
+
     const navItem = document.querySelector(`.admin-nav-item[data-tab="${tabId}"]`);
-    if (navItem) navItem.click();
+    if (navItem) navItem.classList.add('active');
+
+    const targetTab = document.getElementById(tabId);
+    if (targetTab) {
+        targetTab.classList.add('active');
+        if (tabId === 'tab-security') try { renderStaffTable(); } catch(e) {}
+        else if (tabId === 'tab-products') try { renderProductsTable(); } catch(e) {}
+        else if (tabId === 'tab-categories') try { renderCategoriesTable(); } catch(e) {}
+        else if (tabId === 'tab-promotions') { try { renderBannersList(); } catch(e) {} try { renderCouponsTable(); } catch(e) {} }
+        else if (tabId === 'tab-orders') try { renderOrdersTable(); } catch(e) {}
+        else if (tabId === 'tab-overview') try { updateOverviewStats(); } catch(e) {}
+    }
 }
 
 // Window Global Function Bindings
@@ -2564,4 +3012,15 @@ window.deleteOrder = deleteOrder;
 window.deleteCurrentModalOrder = deleteCurrentModalOrder;
 window.switchTab = switchTab;
 window.optimizeAndResizeImage = optimizeAndResizeImage;
+window.handleAdminLoginSubmit = handleAdminLoginSubmit;
+window.unlockAdminDashboard = unlockAdminDashboard;
+window.checkAdminAuth = checkAdminAuth;
+window.toggleProductColorsInput = toggleProductColorsInput;
+window.toggleProductSizesInput = toggleProductSizesInput;
+window.addAdminProductColorChip = addAdminProductColorChip;
+window.removeAdminProductColorChip = removeAdminProductColorChip;
+window.addAdminProductSizeChip = addAdminProductSizeChip;
+window.removeAdminProductSizeChip = removeAdminProductSizeChip;
+
+
 

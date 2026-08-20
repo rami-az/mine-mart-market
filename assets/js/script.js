@@ -2,8 +2,14 @@
 // Mine Mart Storefront Persistence & Multi-Currency Engine (USD & IQD)
 // ==========================================================================
 
-const API_BASE = '/api/v1';
+const BACKEND_URL = (typeof window !== 'undefined' && (window.location.protocol === 'file:' || (window.location.port !== '5000' && !window.location.port)))
+    ? 'http://localhost:5000'
+    : '';
+const API_BASE = `${BACKEND_URL}/api/v1`;
 const EXCHANGE_RATE_USD_TO_IQD = 1320; // 1 USD = 1,320 IQD
+
+// Cross-tab Real-Time Synchronization Channel
+const minemartChannel = (typeof window !== 'undefined' && window.BroadcastChannel) ? new BroadcastChannel('minemart_store_channel') : null;
 
 // ==========================================================================
 // IndexedDB Dual-Layer Permanent Persistence Engine
@@ -30,6 +36,15 @@ function openIDB() {
     });
 }
 
+async function idbSet(key, val) {
+    try {
+        const db = await openIDB();
+        if (!db) return;
+        const tx = db.transaction(IDB_STORE, 'readwrite');
+        tx.objectStore(IDB_STORE).put(val, key);
+    } catch(e) {}
+}
+
 async function idbGet(key) {
     try {
         const db = await openIDB();
@@ -54,256 +69,107 @@ const defaultCategories = [
     { id: 5, name: "الألعاب والقطع", slug: "toys", count: 1, image: "assets/images/prod_magnetic_cubes.jpg", desc: "مكعبات وقلاع مغناطيسية تفاعلية للبناء الواقعي والترفيه." }
 ];
 
-// Seed Products Default Data (Base Prices in USD $)
+// Seed Products Default Data (Canonical Products from data/products.json)
 const baseProductsData = [
     {
-        id: 1,
-        name: "Voxel Fox Figurine | مجسم الثعلب المكعبي 3D",
+        id: 1787145865780,
+        name: "مجسم بطة بثيمة ماين كرتافت",
         category: "creatures",
-        price: 45,
-        originalPrice: 56,
-        discountPercent: 20,
-        stock: 5,
-        status: "published",
-        isPopular: true,
-        rating: 5,
-        image: "assets/images/prod_fox.jpg",
-        images: [
-            "assets/images/prod_fox.jpg",
-            "assets/images/prod_angle_detail1.jpg",
-            "assets/images/prod_angle_detail2.jpg",
-            "assets/images/prod_3d_figure.jpg"
-        ],
-        description: "حوّل سيت اب الجيمينج وغرفتك إلى بيئة بكسلية سينمائية خرافية! مجسم الثعلب مطبوع بتقنية 3D دقيقة بقاعدة عشبية مضيئة تعطيك لمسة إبداعية فريدة وتبرز شغفك بالعوالم المكعبة."
-    },
-    {
-        id: 2,
-        name: "Voxel Sword Replica | مجسم السيف البكسلي 3D",
-        category: "decor",
-        price: 60,
-        originalPrice: 70,
-        discountPercent: 15,
-        stock: 12,
-        status: "published",
-        isPopular: true,
-        rating: 5,
-        image: "assets/images/prod_sword.jpg",
-        images: [
-            "assets/images/prod_sword.jpg",
-            "assets/images/prod_angle_detail1.jpg",
-            "assets/images/prod_lamp.jpg"
-        ],
-        description: "نسخة مجسمة مضيئة لسيف بكسلي بلون نيون مضيء على الطاولة، يعطي إضاءة رائعة لغرف الألعاب والسيت اب."
-    },
-    {
-        id: 3,
-        name: "Mini Dragon Model | مجسم التنين الأخضر 3D",
-        category: "creatures",
-        price: 68,
-        originalPrice: 80,
-        discountPercent: 15,
+        price: 7.58,
+        priceIQD: 10000,
+        originalPrice: null,
+        originalPriceIQD: null,
+        discountPercent: 0,
         stock: 2,
         status: "published",
         isPopular: true,
         rating: 5,
-        image: "assets/images/prod_dragon.jpg",
+        image: "assets/images/مجسم_بطة_بثيمة_ماين_كرتافت_1.jpg",
         images: [
-            "assets/images/prod_dragon.jpg",
-            "assets/images/prod_angle_detail1.jpg",
-            "assets/images/prod_angle_detail2.jpg"
+            "assets/images/مجسم_بطة_بثيمة_ماين_كرتافت_1.jpg",
+            "assets/images/مجسم_بطة_بثيمة_ماين_كرتافت_2.jpg"
         ],
-        description: "مجسم تنين أخضر مكعبي بتفاصيل مكعبة دقيقة للغاية وأجنحة بكسلية مفرغـة، مطبوع بخامة PLA فاخرة."
+        description: "",
+        hasColors: true,
+        colors: [],
+        hasSizes: true,
+        sizes: []
     },
     {
-        id: 4,
-        name: "Voxel Chest Storage | صندوق التخزين المكعبي",
-        category: "accessories",
-        price: 52,
-        originalPrice: null,
-        discountPercent: 0,
-        stock: 8,
-        status: "published",
-        isPopular: true,
-        rating: 5,
-        image: "assets/images/prod_chest.jpg",
-        images: [
-            "assets/images/prod_chest.jpg",
-            "assets/images/prod_angle_detail2.jpg",
-            "assets/images/prod_magnetic_cubes.jpg"
-        ],
-        description: "صندوق تخزين خشبي مكعبي بمشابك قفل بكسلية ذهبية لتخزين الإكسسوارات والمقتنيات الصغيرة."
-    },
-    {
-        id: 5,
-        name: "Pixel Cloud Nightlight | مصباح السحابة المضيء",
-        category: "lamps",
-        price: 35,
-        originalPrice: 45,
-        discountPercent: 20,
-        stock: 15,
-        status: "published",
-        isPopular: false,
-        rating: 5,
-        image: "assets/images/prod_lamp.jpg",
-        images: [
-            "assets/images/prod_lamp.jpg",
-            "assets/images/prod_angle_detail1.jpg",
-            "assets/images/prod_sword.jpg"
-        ],
-        description: "مصباح مكتبي مضيء بتصميم سحابة ومكعبات Voxel دافئة تمنح غرفة النوم والسيت اب مظهرًا سينمائيًا هادئًا."
-    },
-    {
-        id: 6,
-        name: "Tiny Voxel Garden | حديقة الميكرو المكعبة 3D",
+        id: 1787143700528,
+        name: "كرة الصورة المضيئة",
         category: "decor",
-        price: 38,
-        originalPrice: 48,
-        discountPercent: 20,
-        stock: 6,
-        status: "published",
-        isPopular: false,
-        rating: 5,
-        image: "assets/images/prod_wall_art.jpg",
-        images: [
-            "assets/images/prod_wall_art.jpg",
-            "assets/images/prod_angle_detail2.jpg",
-            "assets/images/prod_fox.jpg"
-        ],
-        description: "حوض مكعبي صغير يحتوي على حديقة مصغرة وأشجار بكسلية ملونة مع لوحة جدارية قماشية سينمائية."
-    },
-    {
-        id: 7,
-        name: "Robot Mech Figure | مجسم الروبوت المكعبي 3D",
-        category: "creatures",
-        price: 95,
+        price: 11.36,
+        priceIQD: 15000,
         originalPrice: null,
+        originalPriceIQD: null,
         discountPercent: 0,
-        stock: 4,
+        stock: 2,
         status: "published",
         isPopular: true,
         rating: 5,
-        image: "assets/images/prod_3d_figure.jpg",
+        image: "assets/images/كرة_الصورة_المضيئة_1.jpg",
         images: [
-            "assets/images/prod_3d_figure.jpg",
-            "assets/images/prod_angle_detail1.jpg",
-            "assets/images/prod_dragon.jpg"
+            "assets/images/كرة_الصورة_المضيئة_1.jpg",
+            "assets/images/كرة_الصورة_المضيئة_2.jpg"
         ],
-        description: "مجسم ميكانيكي آلي مستقبلي مصنوع من مكعبات بكسلية متداخلة ومفصلية عالية الجودة."
+        description: "",
+        hasColors: true,
+        colors: [],
+        hasSizes: true,
+        sizes: []
     },
     {
-        id: 8,
-        name: "Voxel Castle Model | مجسم القلعة المكعبة 3D",
-        category: "toys",
-        price: 110,
-        originalPrice: 130,
-        discountPercent: 15,
-        stock: 3,
-        status: "published",
-        isPopular: false,
-        rating: 5,
-        image: "assets/images/prod_magnetic_cubes.jpg",
-        images: [
-            "assets/images/prod_magnetic_cubes.jpg",
-            "assets/images/prod_angle_detail2.jpg",
-            "assets/images/prod_chest.jpg"
-        ],
-        description: "نموذج قلعة ثلاثية الأبعاد مبنية من قطع مكعبة مغناطيسية متداخلة تتيح لك إعادة التشكيل والتجسيد."
-    },
-    {
-        id: 9,
-        name: "Voxel Green Keycaps | أزرار كيبورد الفوكسل الخضراء",
-        category: "accessories",
-        price: 24,
-        originalPrice: 32,
-        discountPercent: 25,
-        stock: 20,
-        status: "published",
-        isPopular: false,
-        rating: 5,
-        image: "assets/images/prod_keycaps.jpg",
-        images: [
-            "assets/images/prod_keycaps.jpg",
-            "assets/images/prod_mousepad.jpg",
-            "assets/images/prod_angle_detail1.jpg"
-        ],
-        description: "مجموعة أزرار كيبورد ميكانيكية (Keycaps) مصنوعة بتصميم مكعبي بارز بلون نيون أخضر لتزيين الكيبورد."
-    },
-    {
-        id: 10,
-        name: "Cyber Voxel Desk Mat | ماوس باد السيت اب الكبير",
-        category: "accessories",
-        price: 28,
-        originalPrice: 36,
-        discountPercent: 22,
-        stock: 14,
-        status: "published",
-        isPopular: true,
-        rating: 5,
-        image: "assets/images/prod_mousepad.jpg",
-        images: [
-            "assets/images/prod_mousepad.jpg",
-            "assets/images/prod_keycaps.jpg",
-            "assets/images/prod_angle_detail2.jpg"
-        ],
-        description: "ماوس باد بحجم كبير مطبوع بمدينة بكسلية خضراء مقاومة للماء مع حواف مطرزة."
-    },
-    {
-        id: 11,
-        name: "Voxel Knight Figurine | مجسم الفارس البكسلي",
+        id: 1787134750367,
+        name: "مجسم غاست (Ghast)",
         category: "creatures",
-        price: 55,
-        originalPrice: 65,
-        discountPercent: 15,
-        stock: 7,
-        status: "published",
-        isPopular: false,
-        rating: 5,
-        image: "assets/images/prod_3d_figure.jpg",
-        images: [
-            "assets/images/prod_3d_figure.jpg",
-            "assets/images/prod_angle_detail1.jpg",
-            "assets/images/prod_fox.jpg"
-        ],
-        description: "مجسم تمثال فارس بكسلي بفرسان القرية مطبوع 3D بقاعدة خشبية فاخرة."
-    },
-    {
-        id: 12,
-        name: "Pixel Sunset Canvas | لوحة جبال الفوكسل",
-        category: "decor",
-        price: 32,
+        price: 6.06,
+        priceIQD: 8000,
         originalPrice: null,
+        originalPriceIQD: null,
         discountPercent: 0,
-        stock: 9,
-        status: "published",
-        isPopular: false,
-        rating: 5,
-        image: "assets/images/prod_wall_art.jpg",
-        images: [
-            "assets/images/prod_wall_art.jpg",
-            "assets/images/prod_angle_detail2.jpg"
-        ],
-        description: "لوحة جدارية مؤطرة بإطار أسود تعبر عن غروب الشمس فوق عوالم الجبال البكسلية."
-    },
-    {
-        id: 13,
-        name: "Voxel Creeper Figurine | مجسم كريبر المكعبي 3D",
-        category: "creatures",
-        price: 45,
-        priceIQD: 59400,
-        originalPrice: 55,
-        originalPriceIQD: 72600,
-        discountPercent: 18,
-        stock: 10,
+        stock: 2,
         status: "published",
         isPopular: true,
         rating: 5,
-        image: "assets/images/prod_fox.jpg",
+        image: "assets/images/مجسم_غاست_(Ghast)_1.jpg",
         images: [
-            "assets/images/prod_fox.jpg",
-            "assets/images/prod_angle_detail1.jpg",
-            "assets/images/prod_3d_figure.jpg"
+            "assets/images/مجسم_غاست_(Ghast)_1.jpg",
+            "assets/images/مجسم_غاست_(Ghast)_2.jpg"
         ],
-        description: "مجسم كريبر ثلاثي الأبعاد بتفاصيل بكسلية خضراء دقيقة ومطبوع بجودة 3D فائقة مناسب لعشاق السيت اب ومقتنيات ماين كرافت."
+        description: "مجسم غاست (Ghast)\nالارتفاع 96 سم\nاللون ابيض \nتم طباعتهه باجود انواع مواد الطباعه ثلاثية الابعاد",
+        hasColors: true,
+        colors: [],
+        hasSizes: true,
+        sizes: []
+    },
+    {
+        id: 1787126317135,
+        name: "مداليا كريبر",
+        category: "creatures",
+        price: 1.89,
+        priceIQD: 2500,
+        originalPrice: null,
+        originalPriceIQD: null,
+        discountPercent: 0,
+        stock: 5,
+        status: "published",
+        isPopular: true,
+        rating: 5,
+        image: "assets/images/مداليا_كريبر_1.jpg",
+        images: [
+            "assets/images/مداليا_كريبر_1.jpg",
+            "assets/images/مداليا_كريبر_2.jpg"
+        ],
+        description: "مجسم كريبر بقياس 6 سم \nحلقة معدنية لتعليق المجسم في اي مكان \nالمجسم مطبوع باجود انواع مواد الطباعة",
+        hasColors: true,
+        colors: [],
+        hasSizes: true,
+        sizes: [
+            { name: "صغير (10 سم)", priceIQD: 2500, priceUSD: 1.89 },
+            { name: "متوسط (18 سم)", priceIQD: 4500, priceUSD: 3.41 },
+            { name: "كبير (26 سم)", priceIQD: 7000, priceUSD: 5.3 }
+        ]
     }
 ];
 
@@ -451,57 +317,65 @@ function updateAllPricesOnPage() {
 }
 
 function getLiveProducts() {
+    if (typeof window !== 'undefined' && window.MINE_MART_STORE_DATA && Array.isArray(window.MINE_MART_STORE_DATA.products) && window.MINE_MART_STORE_DATA.products.length > 0) {
+        const sourceData = window.MINE_MART_STORE_DATA.products;
+        try {
+            localStorage.setItem('mine_mart_products', JSON.stringify(sourceData));
+            idbSet('mine_mart_products', sourceData);
+        } catch(e) {}
+        return JSON.parse(JSON.stringify(sourceData));
+    }
+
     const saved = localStorage.getItem('mine_mart_products');
-    if (!saved) {
-        localStorage.setItem('mine_mart_products', JSON.stringify(baseProductsData));
-        return baseProductsData;
-    }
-    try {
-        let parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-            let merged = [...parsed];
-            baseProductsData.forEach(baseProd => {
-                const existingIdx = merged.findIndex(p => String(p.id) === String(baseProd.id));
-                if (existingIdx === -1) {
-                    merged.push(baseProd);
-                }
-            });
-            return merged;
+    if (saved) {
+        try {
+            let parsed = JSON.parse(saved);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+                return parsed;
+            }
+        } catch (e) {
+            console.error('Error parsing stored products:', e);
         }
-    } catch (e) {
-        console.error('Error parsing stored products:', e);
     }
-    return baseProductsData;
+
+    return JSON.parse(JSON.stringify(baseProductsData));
 }
 
 function getLiveCategories() {
+    if (typeof window !== 'undefined' && window.MINE_MART_STORE_DATA && Array.isArray(window.MINE_MART_STORE_DATA.categories) && window.MINE_MART_STORE_DATA.categories.length > 0) {
+        const sourceData = window.MINE_MART_STORE_DATA.categories;
+        try {
+            localStorage.setItem('mine_mart_categories', JSON.stringify(sourceData));
+            idbSet('mine_mart_categories', sourceData);
+        } catch(e) {}
+        return JSON.parse(JSON.stringify(sourceData));
+    }
+
     const saved = localStorage.getItem('mine_mart_categories');
-    let cats = [...defaultCategories];
     if (saved) {
         try {
             const parsed = JSON.parse(saved);
             if (Array.isArray(parsed) && parsed.length > 0) {
-                cats = parsed;
-                defaultCategories.forEach(defaultCat => {
-                    if (!cats.some(c => c.slug === defaultCat.slug)) {
-                        cats.unshift(defaultCat);
-                    }
-                });
+                return parsed;
             }
         } catch (e) {
             console.error('Error parsing stored categories:', e);
         }
     }
     
-    const prods = getLiveProducts();
-    cats.forEach(cat => {
-        cat.count = prods.filter(p => p.category === cat.slug && p.status !== 'draft').length;
-    });
-
-    return cats;
+    return JSON.parse(JSON.stringify(defaultCategories));
 }
 
 function getLiveBanners() {
+    if (typeof window !== 'undefined' && window.MINE_MART_STORE_DATA && Array.isArray(window.MINE_MART_STORE_DATA.banners) && window.MINE_MART_STORE_DATA.banners.length > 0) {
+        const sourceData = window.MINE_MART_STORE_DATA.banners;
+        try {
+            localStorage.setItem('mine_mart_banners', JSON.stringify(sourceData));
+            idbSet('mine_mart_banners', sourceData);
+        } catch(e) {}
+        return JSON.parse(JSON.stringify(sourceData));
+    }
+
     const saved = localStorage.getItem('mine_mart_banners');
     if (saved) {
         try {
@@ -509,10 +383,20 @@ function getLiveBanners() {
             if (Array.isArray(parsed) && parsed.length > 0) return parsed;
         } catch (e) {}
     }
-    return defaultBanners;
+
+    return JSON.parse(JSON.stringify(defaultBanners));
 }
 
 function getLiveCoupons() {
+    if (typeof window !== 'undefined' && window.MINE_MART_STORE_DATA && Array.isArray(window.MINE_MART_STORE_DATA.coupons) && window.MINE_MART_STORE_DATA.coupons.length > 0) {
+        const sourceData = window.MINE_MART_STORE_DATA.coupons;
+        try {
+            localStorage.setItem('mine_mart_coupons', JSON.stringify(sourceData));
+            idbSet('mine_mart_coupons', sourceData);
+        } catch(e) {}
+        return JSON.parse(JSON.stringify(sourceData));
+    }
+
     const saved = localStorage.getItem('mine_mart_coupons');
     if (saved) {
         try {
@@ -520,7 +404,8 @@ function getLiveCoupons() {
             if (Array.isArray(parsed) && parsed.length > 0) return parsed;
         } catch (e) {}
     }
-    return defaultCoupons;
+
+    return JSON.parse(JSON.stringify(defaultCoupons));
 }
 
 // Global Products Data Reference
@@ -605,26 +490,62 @@ function selectShopCategoryFilter(catSlug) {
 
 async function initAsyncStorefrontSync() {
     try {
-        const idbProds = await idbGet('mine_mart_products');
-        if (Array.isArray(idbProds) && idbProds.length > 0) {
-            let hasNew = false;
-            let current = getLiveProducts();
-            idbProds.forEach(ip => {
-                const idx = current.findIndex(p => String(p.id) === String(ip.id));
-                if (idx === -1) {
-                    current.unshift(ip);
-                    hasNew = true;
+        let syncedFromServer = false;
+        try {
+            const res = await fetch(`${API_BASE}/sync`);
+            if (res.ok) {
+                const json = await res.json();
+                if (json.data && Array.isArray(json.data.products) && json.data.products.length > 0) {
+                    productsData = json.data.products;
+                    try { localStorage.setItem('mine_mart_products', JSON.stringify(productsData)); } catch(e) {}
+                    if (Array.isArray(json.data.categories) && json.data.categories.length > 0) {
+                        try { localStorage.setItem('mine_mart_categories', JSON.stringify(json.data.categories)); } catch(e) {}
+                    }
+                    if (Array.isArray(json.data.banners) && json.data.banners.length > 0) {
+                        try { localStorage.setItem('mine_mart_banners', JSON.stringify(json.data.banners)); } catch(e) {}
+                    }
+                    if (Array.isArray(json.data.coupons) && json.data.coupons.length > 0) {
+                        try { localStorage.setItem('mine_mart_coupons', JSON.stringify(json.data.coupons)); } catch(e) {}
+                    }
+                    syncedFromServer = true;
                 }
-            });
-            if (hasNew) {
-                try {
-                    localStorage.setItem('mine_mart_products', JSON.stringify(current));
-                } catch(e) {}
-                productsData = current;
-                if (document.getElementById('productGrid')) renderShopGrid();
-                if (document.getElementById('popularProductsGrid')) renderHomepageRows();
-                if (document.getElementById('shopCategoryList')) renderShopCategoriesSidebar();
-                if (document.getElementById('categoriesGridContainer')) renderCategoriesPageGrid();
+            }
+        } catch(e) {
+            // Fallback to window.MINE_MART_STORE_DATA from data-store.js
+            if (typeof window !== 'undefined' && window.MINE_MART_STORE_DATA) {
+                if (Array.isArray(window.MINE_MART_STORE_DATA.products) && window.MINE_MART_STORE_DATA.products.length > 0) {
+                    productsData = window.MINE_MART_STORE_DATA.products;
+                    try { localStorage.setItem('mine_mart_products', JSON.stringify(productsData)); } catch(e) {}
+                    syncedFromServer = true;
+                }
+                if (Array.isArray(window.MINE_MART_STORE_DATA.categories) && window.MINE_MART_STORE_DATA.categories.length > 0) {
+                    try { localStorage.setItem('mine_mart_categories', JSON.stringify(window.MINE_MART_STORE_DATA.categories)); } catch(e) {}
+                }
+            }
+        }
+
+        if (syncedFromServer) {
+            refreshStorefrontUI();
+        } else {
+            // Fallback to IndexedDB if offline and localStorage empty
+            let needsRefresh = false;
+            if (!localStorage.getItem('mine_mart_products')) {
+                const idbProds = await idbGet('mine_mart_products');
+                if (Array.isArray(idbProds) && idbProds.length > 0) {
+                    productsData = idbProds;
+                    try { localStorage.setItem('mine_mart_products', JSON.stringify(productsData)); } catch(e) {}
+                    needsRefresh = true;
+                }
+            }
+            if (!localStorage.getItem('mine_mart_categories')) {
+                const idbCats = await idbGet('mine_mart_categories');
+                if (Array.isArray(idbCats) && idbCats.length > 0) {
+                    try { localStorage.setItem('mine_mart_categories', JSON.stringify(idbCats)); } catch(e) {}
+                    needsRefresh = true;
+                }
+            }
+            if (needsRefresh) {
+                refreshStorefrontUI();
             }
         }
     } catch(e) {}
@@ -662,7 +583,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Check if on PDP Page (product-detail.html)
     if (document.getElementById('pdpMainImg')) {
-        const prodId = idParam ? parseInt(idParam) : 1;
+        const prodId = idParam ? idParam : (productsData[0] ? productsData[0].id : 1);
         initProductDetailPage(prodId);
     } else if (document.getElementById('popularProductsGrid')) {
         renderHomepageRows();
@@ -1204,10 +1125,23 @@ function handleFinalOrderSubmit(event) {
     userOrders.unshift(orderRecord);
     localStorage.setItem('minemart_user_orders', JSON.stringify(userOrders));
 
-    // 2. Sync with Admin Orders in localStorage
+    // 2. Sync with Admin Orders in localStorage & Server Disk File (data/orders.json)
     let adminOrders = JSON.parse(localStorage.getItem('mine_mart_orders')) || [];
     adminOrders.unshift(orderRecord);
     localStorage.setItem('mine_mart_orders', JSON.stringify(adminOrders));
+    idbSet('mine_mart_orders', adminOrders);
+
+    try {
+        fetch('/api/v1/orders', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(orderRecord)
+        }).catch(() => {});
+    } catch(e) {}
+
+    if (minemartChannel) {
+        try { minemartChannel.postMessage({ type: 'DATA_UPDATED' }); } catch(e) {}
+    }
 
     // 3. Clear Cart & Reset
     cart = [];
@@ -1347,27 +1281,53 @@ function renderCategoriesPageGrid() {
     }).join('');
 }
 
+function refreshStorefrontUI() {
+    productsData = getLiveProducts();
+    if (document.getElementById('productGrid')) {
+        renderShopGrid();
+    }
+    if (document.getElementById('popularProductsGrid')) {
+        renderHomepageRows();
+    }
+    if (document.getElementById('shopCategoryList')) {
+        renderShopCategoriesSidebar();
+    }
+    if (document.getElementById('categoriesGridContainer')) {
+        renderCategoriesPageGrid();
+    }
+    if (document.getElementById('heroSliderWrapper')) {
+        initHeroSlider();
+    }
+    if (document.getElementById('pdpMainImg')) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const idParam = urlParams.get('id');
+        const prodId = idParam ? idParam : (productsData[0] ? productsData[0].id : 1);
+        initProductDetailPage(prodId);
+    }
+    updateCartUI();
+}
+
 // Real-time synchronization across tabs (Admin Dashboard <-> Storefront)
 window.addEventListener('storage', (e) => {
     if (e.key === 'mine_mart_products' || e.key === 'mine_mart_categories' || e.key === 'mine_mart_banners' || e.key === 'mine_mart_coupons') {
-        productsData = getLiveProducts();
-        if (document.getElementById('productGrid')) {
-            renderShopGrid();
-        }
-        if (document.getElementById('popularProductsGrid')) {
-            renderHomepageRows();
-        }
-        if (document.getElementById('shopCategoryList')) {
-            renderShopCategoriesSidebar();
-        }
-        if (document.getElementById('categoriesGridContainer')) {
-            renderCategoriesPageGrid();
-        }
-        if (document.getElementById('heroSliderWrapper')) {
-            initHeroSlider();
-        }
+        refreshStorefrontUI();
     }
 });
+
+// BroadcastChannel for instant inter-tab and inter-window event dispatch
+if (minemartChannel) {
+    minemartChannel.onmessage = (event) => {
+        if (event.data && event.data.type === 'DATA_UPDATED') {
+            refreshStorefrontUI();
+        }
+    };
+}
+
+if (typeof window !== 'undefined') {
+    window.addEventListener('minemart:data_updated', () => {
+        refreshStorefrontUI();
+    });
+}
 
 // Navigation Helpers
 function goToPage(url) {
@@ -1446,23 +1406,24 @@ function getBotResponse(input) {
 // Product Detail Page (PDP) Implementation Logic
 function initProductDetailPage(productId) {
     productsData = getLiveProducts();
-    const p = productsData.find(prod => prod.id === productId) || productsData[0];
+    const p = productsData.find(prod => String(prod.id) === String(productId)) || productsData[0];
+    if (!p) return;
     currentPdpProduct = p;
     recordProductView(p.id);
 
     // Breadcrumb updates
     const breadcrumbCategory = document.getElementById('breadcrumbCategory');
-    if (breadcrumbCategory) breadcrumbCategory.innerText = p.category.toUpperCase();
+    if (breadcrumbCategory) breadcrumbCategory.innerText = (p.category || '').toUpperCase();
     const breadcrumbTitle = document.getElementById('breadcrumbTitle');
-    if (breadcrumbTitle) breadcrumbTitle.innerText = p.name;
+    if (breadcrumbTitle) breadcrumbTitle.innerText = p.name || '';
 
     // Main Image & Thumbnails
     const pdpMainImg = document.getElementById('pdpMainImg');
-    if (pdpMainImg) pdpMainImg.src = p.image;
+    if (pdpMainImg) pdpMainImg.src = p.image || 'assets/images/prod_fox.jpg';
 
     const pdpThumbsStrip = document.getElementById('pdpThumbsStrip');
     if (pdpThumbsStrip) {
-        const imageList = p.images && p.images.length > 0 ? p.images : [p.image];
+        const imageList = p.images && p.images.length > 0 ? p.images : [p.image || 'assets/images/prod_fox.jpg'];
         pdpThumbsStrip.innerHTML = imageList.map((imgSrc, idx) => `
             <div class="pdp-thumb-item ${idx === 0 ? 'active' : ''}" onclick="switchPdpMainImage('${imgSrc}', this)">
                 <img src="${imgSrc}" alt="${p.name} thumb ${idx + 1}">
@@ -1472,9 +1433,9 @@ function initProductDetailPage(productId) {
 
     // Info details
     const pdpCatBadge = document.getElementById('pdpCatBadge');
-    if (pdpCatBadge) pdpCatBadge.innerText = p.category.toUpperCase();
+    if (pdpCatBadge) pdpCatBadge.innerText = (p.category || '').toUpperCase();
     const pdpTitle = document.getElementById('pdpTitle');
-    if (pdpTitle) pdpTitle.innerText = p.name;
+    if (pdpTitle) pdpTitle.innerText = p.name || '';
     
     const pdpPriceBox = document.getElementById('pdpPriceBox');
     if (pdpPriceBox) {
@@ -1490,7 +1451,7 @@ function initProductDetailPage(productId) {
 
     // Sticky Mobile Bar info
     const stickyTitle = document.getElementById('stickyTitle');
-    if (stickyTitle) stickyTitle.innerText = p.name;
+    if (stickyTitle) stickyTitle.innerText = p.name || '';
     const stickyPrice = document.getElementById('stickyPrice');
     if (stickyPrice) stickyPrice.innerText = formatCurrency(p.price);
 
@@ -1527,24 +1488,92 @@ function initProductDetailPage(productId) {
         stickyAddBtn.onclick = () => addToCartWithQty(p.id, pdpSelectedQty);
     }
 
-    // Variants Color Selector Chips
-    document.querySelectorAll('.color-chip').forEach(chip => {
-        chip.addEventListener('click', () => {
-            document.querySelectorAll('.color-chip').forEach(c => c.classList.remove('active'));
-            chip.classList.add('active');
-            const colorName = chip.getAttribute('data-color');
-            const selectedColorName = document.getElementById('selectedColorName');
-            if (selectedColorName) selectedColorName.innerText = colorName;
-        });
-    });
+    // Variants Color Selector Chips (Dynamic Render & Control)
+    const colorGroup = document.querySelector('.color-options-list') ? document.querySelector('.color-options-list').closest('.variant-group') : null;
+    const colorListEl = document.querySelector('.color-options-list');
+    const selectedColorName = document.getElementById('selectedColorName');
 
-    // Variants Size Selector Chips
-    document.querySelectorAll('.size-chip').forEach(chip => {
-        chip.addEventListener('click', () => {
-            document.querySelectorAll('.size-chip').forEach(s => s.classList.remove('active'));
-            chip.classList.add('active');
+    const showColors = (p.hasColors !== false) && (p.colors && p.colors.length > 0);
+    if (colorGroup) colorGroup.style.display = showColors ? 'block' : 'none';
+
+    if (showColors && colorListEl && p.colors) {
+        colorListEl.innerHTML = p.colors.map((col, idx) => {
+            const cName = typeof col === 'string' ? col : col.name;
+            const cHex = typeof col === 'string' ? '#76e611' : (col.hex || '#76e611');
+            return `
+                <button class="color-chip ${idx === 0 ? 'active' : ''}" data-color="${cName}" style="background:${cHex};" title="${cName}"></button>
+            `;
+        }).join('');
+
+        if (selectedColorName && p.colors.length > 0) {
+            const firstColor = p.colors[0];
+            selectedColorName.innerText = typeof firstColor === 'string' ? firstColor : firstColor.name;
+        }
+
+        document.querySelectorAll('.color-chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                document.querySelectorAll('.color-chip').forEach(c => c.classList.remove('active'));
+                chip.classList.add('active');
+                const colorName = chip.getAttribute('data-color');
+                if (selectedColorName) selectedColorName.innerText = colorName;
+            });
         });
-    });
+    }
+
+    // Variants Size Selector Chips (Dynamic Render & Control with Size Specific Prices)
+    const sizeGroup = document.querySelector('.size-options-list') ? document.querySelector('.size-options-list').closest('.variant-group') : null;
+    const sizeListEl = document.querySelector('.size-options-list');
+
+    const showSizes = (p.hasSizes !== false) && (p.sizes && p.sizes.length > 0);
+    if (sizeGroup) sizeGroup.style.display = showSizes ? 'block' : 'none';
+
+    if (showSizes && sizeListEl && p.sizes) {
+        sizeListEl.innerHTML = p.sizes.map((sz, idx) => {
+            const sName = typeof sz === 'string' ? sz : sz.name;
+            const sPriceIQD = (typeof sz === 'object' && sz.priceIQD) ? sz.priceIQD : null;
+            const sPriceUSD = (typeof sz === 'object' && sz.priceUSD) ? sz.priceUSD : (sPriceIQD ? Math.round((sPriceIQD / EXCHANGE_RATE_USD_TO_IQD) * 100) / 100 : null);
+            const priceBadge = sPriceUSD ? ` <span style="font-size:0.78rem; opacity:0.85; margin-right:2px;">(${formatCurrency(sPriceUSD)})</span>` : '';
+            
+            return `
+                <button class="size-chip ${idx === 0 ? 'active' : ''}" data-size="${sName}" data-price-iqd="${sPriceIQD || ''}" data-price-usd="${sPriceUSD || ''}">
+                    ${sName}${priceBadge}
+                </button>
+            `;
+        }).join('');
+
+        // Function to update PDP price dynamically based on active size chip
+        const updatePdpPriceForActiveSize = (chip) => {
+            const sizePriceIQD = chip.getAttribute('data-price-iqd');
+            const sizePriceUSD = chip.getAttribute('data-price-usd');
+
+            const pdpPriceBox = document.getElementById('pdpPriceBox');
+            const stickyPrice = document.getElementById('stickyPrice');
+
+            if (sizePriceUSD && parseFloat(sizePriceUSD) > 0) {
+                const numUSD = parseFloat(sizePriceUSD);
+                if (pdpPriceBox) pdpPriceBox.innerHTML = `<span class="current-price">${formatCurrency(numUSD)}</span>`;
+                if (stickyPrice) stickyPrice.innerText = formatCurrency(numUSD);
+            } else if (pdpPriceBox) {
+                pdpPriceBox.innerHTML = p.discountPercent > 0 ? `
+                    <span class="current-price">${formatCurrency(p.price)}</span>
+                    <span class="old-price">${formatCurrency(p.originalPrice)}</span>
+                    <span class="save-badge">وفر ${p.discountPercent}%</span>
+                ` : `<span class="current-price">${formatCurrency(p.price)}</span>`;
+                if (stickyPrice) stickyPrice.innerText = formatCurrency(p.price);
+            }
+        };
+
+        const firstActiveChip = document.querySelector('.size-chip.active');
+        if (firstActiveChip) updatePdpPriceForActiveSize(firstActiveChip);
+
+        document.querySelectorAll('.size-chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                document.querySelectorAll('.size-chip').forEach(s => s.classList.remove('active'));
+                chip.classList.add('active');
+                updatePdpPriceForActiveSize(chip);
+            });
+        });
+    }
 
     // Modals (Size Chart & Video Demo)
     const openSizeChartBtn = document.getElementById('openSizeChartBtn');
@@ -1566,9 +1595,74 @@ function initProductDetailPage(productId) {
     // Render Related Products ("قد يعجبك أيضاً")
     const relatedGrid = document.getElementById('pdpRelatedProductsGrid');
     if (relatedGrid) {
-        const related = productsData.filter(item => item.id !== p.id && item.category === p.category).concat(productsData.filter(item => item.id !== p.id)).slice(0, 4);
+        const related = productsData.filter(item => String(item.id) !== String(p.id) && item.category === p.category && item.status !== 'draft').concat(productsData.filter(item => String(item.id) !== String(p.id) && item.status !== 'draft')).slice(0, 4);
         relatedGrid.innerHTML = related.map(item => createProductCardHTML(item)).join('');
     }
+
+    // Dynamic Cross-Selling Bundle Offer Render
+    renderProductBundleOffer(p, productsData);
+}
+
+let currentBundleProducts = [];
+
+function renderProductBundleOffer(currentProduct, allProducts) {
+    const bundleCard = document.getElementById('pdpBundleCard') || document.querySelector('.bundle-upsell-card');
+    if (!bundleCard) return;
+
+    // Find other published products in the store
+    const otherProducts = (allProducts || []).filter(item => String(item.id) !== String(currentProduct.id) && item.status !== 'draft');
+
+    if (otherProducts.length === 0) {
+        // Hide bundle if there is no other product in the store
+        bundleCard.style.display = 'none';
+        currentBundleProducts = [];
+        return;
+    }
+
+    // Prefer product in same category, otherwise pick first available product
+    let secondProduct = otherProducts.find(item => item.category === currentProduct.category) || otherProducts[0];
+
+    currentBundleProducts = [currentProduct, secondProduct];
+
+    // Calculate sum of IQD prices
+    const item1IQD = currentProduct.priceIQD || (currentProduct.price ? Math.round(currentProduct.price * EXCHANGE_RATE_USD_TO_IQD) : 0);
+    const item2IQD = secondProduct.priceIQD || (secondProduct.price ? Math.round(secondProduct.price * EXCHANGE_RATE_USD_TO_IQD) : 0);
+    const originalTotalIQD = item1IQD + item2IQD;
+    
+    // Apply 15% discount for bundle
+    const discountedTotalIQD = Math.round((originalTotalIQD * 0.85) / 250) * 250;
+
+    const priceUSD = Math.round((discountedTotalIQD / EXCHANGE_RATE_USD_TO_IQD) * 100) / 100;
+    const oldPriceUSD = Math.round((originalTotalIQD / EXCHANGE_RATE_USD_TO_IQD) * 100) / 100;
+
+    bundleCard.style.display = 'block';
+    bundleCard.innerHTML = `
+        <div class="bundle-header">
+            <h3><i class="fa-solid fa-boxes-packing" style="color:var(--neon-green);"></i> اشترِهما معاً ووفر 15% إضافية (Cross-Selling Bundle)</h3>
+            <span class="bundle-save-tag">خصم حزمة المقتنيات 🔥</span>
+        </div>
+        <div class="bundle-items-row">
+            <div class="bundle-prod-thumb" style="cursor:pointer;" onclick="location.href='product-detail.html?id=${currentProduct.id}'">
+                <img src="${currentProduct.image || 'assets/images/prod_fox.jpg'}" alt="${currentProduct.name}">
+                <span>${currentProduct.name}</span>
+            </div>
+            <span class="plus-icon">+</span>
+            <div class="bundle-prod-thumb" style="cursor:pointer;" onclick="location.href='product-detail.html?id=${secondProduct.id}'">
+                <img src="${secondProduct.image || 'assets/images/prod_fox.jpg'}" alt="${secondProduct.name}">
+                <span>${secondProduct.name}</span>
+            </div>
+            <span class="plus-icon">=</span>
+            <div class="bundle-price-info">
+                <div class="bundle-total-price" id="bundlePriceText">
+                    ${formatCurrency(priceUSD)} 
+                    <span class="bundle-old" id="bundleOldPriceText">${formatCurrency(oldPriceUSD)}</span>
+                </div>
+                <button class="btn-hero-cta" onclick="addBundleToCart()" style="padding:0.6rem 1.2rem; font-size:0.88rem;">
+                    إضافة الحزمة للسلة <i class="fa-solid fa-cart-plus"></i>
+                </button>
+            </div>
+        </div>
+    `;
 }
 
 function switchPdpMainImage(imgSrc, thumbEl) {
@@ -1585,9 +1679,16 @@ function switchPdpMainImage(imgSrc, thumbEl) {
 }
 
 function addBundleToCart() {
-    addToCartWithQty(1, 1); // Fox
-    addToCartWithQty(5, 1); // Cloud Lamp
-    alert("🎉 تم إضافة حزمة المقتنيات ووفرت 15% إضافية!");
+    if (!currentBundleProducts || currentBundleProducts.length < 2) {
+        alert("عذراً، حزمة المقتنيات غير متاحة حالياً.");
+        return;
+    }
+    const [p1, p2] = currentBundleProducts;
+    addToCartWithQty(p1.id, 1);
+    addToCartWithQty(p2.id, 1);
+    const cartModal = document.getElementById('cartModal');
+    if (cartModal) cartModal.classList.add('active');
+    alert(`🎉 تم إضافة حزمة المقتنيات:\n• ${p1.name}\n• ${p2.name}\nإلى السلة بنجاح مع خصم 15%!`);
 }
 
 // User Interaction Tracking
@@ -1607,10 +1708,10 @@ function recordUserInterestCategory(cat) {
 
 function recordProductView(prodId) {
     productsData = getLiveProducts();
-    const p = productsData.find(item => item.id === prodId);
+    const p = productsData.find(item => String(item.id) === String(prodId));
     if (p) {
-        if (!userHistory.viewedIds.includes(prodId)) {
-            userHistory.viewedIds.push(prodId);
+        if (!userHistory.viewedIds.includes(String(prodId))) {
+            userHistory.viewedIds.push(String(prodId));
         }
         if (!userHistory.categories.includes(p.category)) {
             userHistory.categories.push(p.category);
@@ -1923,10 +2024,10 @@ function createProductCardHTML(p, showDiscountBadge = false) {
     return `
         <div class="product-card-v1">
             ${discountBadgeHTML}
-            <div class="product-img-frame" onclick="navigateToPDP(${p.id})">
+            <div class="product-img-frame" onclick="navigateToPDP('${p.id}')">
                 <img src="${p.image}" alt="${p.name}">
             </div>
-            <h3 class="product-card-title" onclick="navigateToPDP(${p.id})">${p.name}</h3>
+            <h3 class="product-card-title" onclick="navigateToPDP('${p.id}')">${p.name}</h3>
             <div class="product-rating">
                 <i class="fa-solid fa-star"></i>
                 <i class="fa-solid fa-star"></i>
@@ -1935,7 +2036,7 @@ function createProductCardHTML(p, showDiscountBadge = false) {
                 <i class="fa-solid fa-star"></i>
             </div>
             <div class="product-price-row">${priceDisplay}</div>
-            <button class="btn-add-to-cart" onclick="addToCart(${p.id})">
+            <button class="btn-add-to-cart" onclick="addToCart('${p.id}')">
                 إضافة للسلة <i class="fa-solid fa-cart-plus"></i>
             </button>
         </div>
@@ -1943,7 +2044,7 @@ function createProductCardHTML(p, showDiscountBadge = false) {
 }
 
 function navigateToPDP(productId) {
-    window.location.href = `product-detail.html?id=${productId}`;
+    window.location.href = `product-detail.html?id=${encodeURIComponent(productId)}`;
 }
 
 // Hero Slider Dynamic Rendering & Interactive Carousel Logic
@@ -2066,7 +2167,7 @@ function initHeroSlider() {
 // Multi-Image Product Gallery Modal Logic
 function openProductModal(productId) {
     productsData = getLiveProducts();
-    const p = productsData.find(prod => prod.id === productId);
+    const p = productsData.find(prod => String(prod.id) === String(productId));
     if (!p) return;
 
     recordProductView(productId);
@@ -2075,11 +2176,11 @@ function openProductModal(productId) {
     if (valEl) valEl.innerText = modalSelectedQty;
 
     const modalImg = document.getElementById('modalImg');
-    if (modalImg) modalImg.src = p.image;
+    if (modalImg) modalImg.src = p.image || 'assets/images/prod_fox.jpg';
     const catBadge = document.getElementById('modalCategoryBadge');
-    if (catBadge) catBadge.innerText = p.category.toUpperCase();
+    if (catBadge) catBadge.innerText = (p.category || '').toUpperCase();
     const titleEl = document.getElementById('modalTitle');
-    if (titleEl) titleEl.innerText = p.name;
+    if (titleEl) titleEl.innerText = p.name || '';
     const priceEl = document.getElementById('modalPrice');
     if (priceEl) {
         priceEl.innerHTML = p.discountPercent > 0 ? `${formatCurrency(p.price)} <span style="font-size:0.9rem; text-decoration:line-through; color:var(--text-dim); margin-right:0.5rem;">${formatCurrency(p.originalPrice)}</span>` : `${formatCurrency(p.price)}`;
@@ -2089,7 +2190,7 @@ function openProductModal(productId) {
 
     const thumbsStrip = document.getElementById('modalThumbnailsStrip');
     if (thumbsStrip) {
-        const imageList = p.images && p.images.length > 0 ? p.images : [p.image];
+        const imageList = p.images && p.images.length > 0 ? p.images : [p.image || 'assets/images/prod_fox.jpg'];
         thumbsStrip.innerHTML = imageList.map((imgSrc, idx) => `
             <div class="modal-thumb-item ${idx === 0 ? 'active' : ''}" onclick="switchModalMainImage('${imgSrc}', this)">
                 <img src="${imgSrc}" alt="${p.name} angle ${idx + 1}">
@@ -2151,18 +2252,48 @@ function addToCart(productId) {
     addToCartWithQty(productId, 1);
 }
 
-function addToCartWithQty(productId, qty) {
+function addToCartWithQty(productId, qty, selectedColor = null, selectedSize = null, customPriceUSD = null) {
     productsData = getLiveProducts();
-    const prod = productsData.find(p => p.id === productId);
+    const prod = productsData.find(p => String(p.id) === String(productId));
     if (!prod) return;
 
     recordProductView(productId);
 
-    const existing = cart.find(item => item.id === productId);
+    // Active color and size selection from PDP if not explicitly passed
+    if (!selectedColor) {
+        const activeColorBtn = document.querySelector('.color-chip.active');
+        if (activeColorBtn) selectedColor = activeColorBtn.getAttribute('data-color');
+    }
+    if (!selectedSize) {
+        const activeSizeBtn = document.querySelector('.size-chip.active');
+        if (activeSizeBtn) {
+            selectedSize = activeSizeBtn.getAttribute('data-size');
+            const sizePriceUSD = activeSizeBtn.getAttribute('data-price-usd');
+            if (sizePriceUSD && !customPriceUSD && parseFloat(sizePriceUSD) > 0) {
+                customPriceUSD = parseFloat(sizePriceUSD);
+            }
+        }
+    }
+
+    const priceToUse = (customPriceUSD && customPriceUSD > 0) ? customPriceUSD : prod.price;
+    const itemCartKey = `${productId}_${selectedSize || 'default'}_${selectedColor || 'default'}`;
+
+    const existing = cart.find(item => item.itemCartKey === itemCartKey || (String(item.id) === String(productId) && item.selectedSize === selectedSize && item.selectedColor === selectedColor));
+    
     if (existing) {
         existing.qty += qty;
+        existing.price = priceToUse;
     } else {
-        cart.push({ ...prod, qty: qty });
+        const displayName = selectedSize ? `${prod.name} (${selectedSize})` : prod.name;
+        cart.push({ 
+            ...prod, 
+            itemCartKey: itemCartKey,
+            name: displayName,
+            price: priceToUse,
+            selectedColor: selectedColor,
+            selectedSize: selectedSize,
+            qty: qty 
+        });
     }
     saveCart();
     updateCartUI();
@@ -2180,11 +2311,11 @@ function addToCartWithQty(productId, qty) {
 }
 
 function changeQty(productId, delta) {
-    const item = cart.find(i => i.id === productId);
+    const item = cart.find(i => String(i.id) === String(productId));
     if (!item) return;
     item.qty += delta;
     if (item.qty <= 0) {
-        cart = cart.filter(i => i.id !== productId);
+        cart = cart.filter(i => String(i.id) !== String(productId));
     }
     saveCart();
     updateCartUI();
@@ -2219,14 +2350,14 @@ function updateCartUI() {
 
     cartItemsContainer.innerHTML = cart.map(item => `
         <div style="display:flex; align-items:center; gap:0.75rem; background:#111713; padding:0.75rem; border-radius:8px; border:1px solid var(--border-green);">
-            <img src="${item.image}" style="width:55px; height:55px; border-radius:6px; object-fit:cover;">
+            <img src="${item.image || 'assets/images/prod_fox.jpg'}" style="width:55px; height:55px; border-radius:6px; object-fit:cover;">
             <div style="flex:1;">
                 <div style="font-weight:700; font-size:0.85rem; margin-bottom:0.2rem;">${item.name}</div>
                 <div style="color:var(--neon-green); font-weight:800; font-size:0.88rem;">${formatCurrency(item.price * item.qty)}</div>
                 <div style="display:flex; align-items:center; gap:0.5rem; margin-top:0.3rem;">
-                    <button onclick="changeQty(${item.id}, -1)" style="width:22px; height:22px; background:#1c261e; border:1px solid var(--border-green); color:#fff; cursor:pointer;">-</button>
+                    <button onclick="changeQty('${item.id}', -1)" style="width:22px; height:22px; background:#1c261e; border:1px solid var(--border-green); color:#fff; cursor:pointer;">-</button>
                     <span style="font-size:0.85rem; font-weight:700;">${item.qty}</span>
-                    <button onclick="changeQty(${item.id}, 1)" style="width:22px; height:22px; background:#1c261e; border:1px solid var(--border-green); color:#fff; cursor:pointer;">+</button>
+                    <button onclick="changeQty('${item.id}', 1)" style="width:22px; height:22px; background:#1c261e; border:1px solid var(--border-green); color:#fff; cursor:pointer;">+</button>
                 </div>
             </div>
         </div>

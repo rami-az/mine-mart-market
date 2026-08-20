@@ -1,0 +1,177 @@
+[
+  {
+    "id": "ORD-5989",
+    "date": "2026-08-20",
+    "name": "مدير المتجر",
+    "email": "ramiaz.ta3@gmail.com",
+    "phone": "123123123",
+    "country": "العراق",
+    "province": "بغداد",
+    "address": "العراق - بغداد - الاعظمية",
+    "currency": "IQD",
+    "totalUSD": 26.519999999999996,
+    "total": "35,000 د.ع",
+    "items": [
+      {
+        "id": 1787163607271,
+        "name": "مجسم  كريبر الهيكل العضمي",
+        "category": "creatures",
+        "price": 7.58,
+        "priceIQD": 10000,
+        "originalPrice": null,
+        "originalPriceIQD": null,
+        "discountPercent": 0,
+        "stock": 3,
+        "status": "published",
+        "isPopular": true,
+        "rating": 5,
+        "image": "assets/images/مجسم_كريبر_الهيكل_العضمي_1.jpg",
+        "images": [
+          "assets/images/مجسم_كريبر_الهيكل_العضمي_1.jpg",
+          "assets/images/مجسم_كريبر_الهيكل_العضمي_2.jpg"
+        ],
+        "desc": "مجسم كريبر نصف مجسم ونصف هيكل عضمي \nقياس المجسم 6 سم \nتم طباعته باجود انواع مواد الطباعه ثلاثية الابعاد",
+        "description": "مجسم كريبر نصف مجسم ونصف هيكل عضمي \nقياس المجسم 6 سم \nتم طباعته باجود انواع مواد الطباعه ثلاثية الابعاد",
+        "hasColors": false,
+        "colors": [],
+        "hasSizes": false,
+        "sizes": [],
+        "itemCartKey": "1787163607271_default_default",
+        "selectedColor": null,
+        "selectedSize": null,
+        "qty": 1
+      },
+      {
+        "id": 1787163455763,
+        "name": "مجسم دب الباندا",
+        "category": "creatures",
+        "price": 11.36,
+        "priceIQD": 15000,
+        "originalPrice": null,
+        "originalPriceIQD": null,
+        "discountPercent": 0,
+        "stock": 5,
+        "status": "published",
+        "isPopular": true,
+        "rating": 5,
+        "image": "assets/images/مجسم_دب_الباندا.jpg",
+        "images": [
+          "assets/images/مجسم_دب_الباندا.jpg"
+        ],
+        "desc": "",
+        "description": "",
+        "hasColors": false,
+        "colors": [],
+        "hasSizes": false,
+        "sizes": [],
+        "itemCartKey": "1787163455763_default_default",
+        "selectedColor": null,
+        "selectedSize": null,
+        "qty": 1
+      },
+      {
+        "id": 1787145865780,
+        "name": "مجسم بطة بثيمة ماين كرتافت",
+        "category": "creatures",
+        "price": 7.58,
+        "priceIQD": 10000,
+        "originalPrice": null,
+        "originalPriceIQD": null,
+        "discountPercent": 0,
+        "stock": 2,
+        "status": "published",
+        "isPopular": true,
+        "rating": 5,
+        "image": "assets/images/مجسم_بطة_بثيمة_ماين_كرتافت_1.jpg",
+        "images": [
+          "assets/images/مجسم_بطة_بثيمة_ماين_كرتافت_1.jpg",
+          "assets/images/مجسم_بطة_بثيمة_ماين_كرتافت_2.jpg"
+        ],
+        "desc": "",
+        "description": "",
+        "hasColors": true,
+        "colors": [],
+        "hasSizes": true,
+        "sizes": [],
+        "itemCartKey": "1787145865780_default_default",
+        "selectedColor": null,
+        "selectedSize": null,
+        "qty": 1
+      }
+    ],
+    "payment": "الدفع عند الاستلام",
+    "status": "pending"
+  },
+  {
+    "id": "ORD-9082",
+    "date": "2026-08-17",
+    "name": "علي الكرخي",
+    "email": "ali.karkhi@gmail.com",
+    "phone": "07701234567",
+    "country": "العراق",
+    "province": "بغداد",
+    "address": "العراق - بغداد - الكرادة شارع العرصات",
+    "currency": "IQD",
+    "totalUSD": 45,
+    "total": "59,000 د.ع ($45)",
+    "items": [
+      {
+        "id": 1,
+        "name": "Voxel Fox Figurine | مجسم الثعلب المكعبي 3D",
+        "price": 45,
+        "qty": 1,
+        "image": "assets/images/prod_fox.jpg"
+      }
+    ],
+    "payment": "زين كاش ZainCash",
+    "status": "pending"
+  },
+  {
+    "id": "ORD-9081",
+    "date": "2026-08-16",
+    "name": "مصطفى البصري",
+    "email": "mustafa.basra@gmail.com",
+    "phone": "07809876543",
+    "country": "العراق",
+    "province": "البصرة",
+    "address": "العراق - البصرة - العشار قرب الكورنيش",
+    "currency": "IQD",
+    "totalUSD": 95,
+    "total": "125,000 د.ع ($95)",
+    "items": [
+      {
+        "id": 7,
+        "name": "Robot Mech Figure | مجسم الروبوت المكعبي 3D",
+        "price": 95,
+        "qty": 1,
+        "image": "assets/images/prod_3d_figure.jpg"
+      }
+    ],
+    "payment": "كي كارد / ماستركارد",
+    "status": "shipping"
+  },
+  {
+    "id": "ORD-9080",
+    "date": "2026-08-16",
+    "name": "أحمد الأربيلي",
+    "email": "ahmed.erbil@gmail.com",
+    "phone": "07501122334",
+    "country": "العراق",
+    "province": "أربيل",
+    "address": "العراق - أربيل - عينكاوة",
+    "currency": "USD",
+    "totalUSD": 60,
+    "total": "$60 (79,000 د.ع)",
+    "items": [
+      {
+        "id": 2,
+        "name": "Voxel Sword Replica | مجسم السيف البكسلي 3D",
+        "price": 60,
+        "qty": 1,
+        "image": "assets/images/prod_sword.jpg"
+      }
+    ],
+    "payment": "الدفع عند الاستلام",
+    "status": "delivered"
+  }
+]

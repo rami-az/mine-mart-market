@@ -1,0 +1,42 @@
+[
+  {
+    "id": 1,
+    "name": "المخلوقات 3D",
+    "slug": "creatures",
+    "count": 5,
+    "image": "assets/images/المخلوقات_3D.jpg",
+    "desc": "مجسمات المخلوقات ثلاثية الأبعاد بأسلوب الفوكسل"
+  },
+  {
+    "id": 2,
+    "name": "ديكور ومصابيح",
+    "slug": "decor",
+    "count": 1,
+    "image": "assets/images/ديكور_ومصابيح.jpg",
+    "desc": "مصنوعات مضيئة ولوحات جدارية"
+  },
+  {
+    "id": 3,
+    "name": "مستلزمات السيت اب",
+    "slug": "accessories",
+    "count": 1,
+    "image": "assets/images/مستلزمات_السيت_اب.jpg",
+    "desc": "صناديق الخشب، أزرار الكيبورد، وماوس باد"
+  },
+  {
+    "id": 4,
+    "name": "المصابيح المضيئة",
+    "slug": "lamps",
+    "count": 0,
+    "image": "assets/images/المصابيح_المضيئة.jpg",
+    "desc": "مصباح السحابة المضيء Voxel"
+  },
+  {
+    "id": 5,
+    "name": "الألعاب والقطع",
+    "slug": "toys",
+    "count": 0,
+    "image": "assets/images/الألعاب_والقطع.jpg",
+    "desc": "مكعبات وقلاع مغناطيسية"
+  }
+]

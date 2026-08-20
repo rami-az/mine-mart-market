@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "name": "سعد القحطاني",
+    "email": "admin@minemart.shop",
+    "role": "admin",
+    "roleLabel": "Admin (كامل الصلاحيات والتحكم)",
+    "enc": "bcryptjs (12 rounds)",
+    "lastLogin": "اليوم، 15:42",
+    "status": "active"
+  },
+  {
+    "id": 2,
+    "name": "فهد الشمري",
+    "email": "manager@minemart.shop",
+    "role": "manager",
+    "roleLabel": "Manager (إدارة المخزون والطلبات)",
+    "enc": "bcryptjs (12 rounds)",
+    "lastLogin": "أمس، 22:15",
+    "status": "active"
+  },
+  {
+    "id": 3,
+    "name": "نور العبيدي",
+    "email": "staff@minemart.shop",
+    "role": "staff",
+    "roleLabel": "Staff (خدمة العملاء ومراجعة المنتجات)",
+    "enc": "bcryptjs (12 rounds)",
+    "lastLogin": "منذ 3 أيام",
+    "status": "active"
+  }
+]

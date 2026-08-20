@@ -1,0 +1,47 @@
+[
+  {
+    "id": 1,
+    "title": "PREMIUM MINECRAFT",
+    "highlightText": "GEAR",
+    "badgeText": "مستلزمات وسيت اب الجيمرز",
+    "badgeIcon": "fa-solid fa-desktop",
+    "badgeColor": "green",
+    "desc": "صمّم عالمك المكعبي - استكشف مجموعتنا الحصرية من مستلزمات السيت اب المضيئة والماوس بادات البكسلية الاحترافية.",
+    "btnText": "SHOP NOW",
+    "btnLink": "shop.html",
+    "btnIcon": "fa-solid fa-arrow-left",
+    "image": "assets/images/PREMIUM_MINECRAFT.jpeg",
+    "status": "active",
+    "duration": 8000
+  },
+  {
+    "id": 2,
+    "title": "SUMMER SALE -",
+    "highlightText": "20% OFF",
+    "badgeText": "عروض العطلة الصيفية 🔥",
+    "badgeIcon": "fa-solid fa-sun",
+    "badgeColor": "red",
+    "desc": "احصل على خصم 20% بمناسبة العطلة الصيفية على جميع طلبات المجسمات والطباعة ثلاثية الأبعاد المخصصة 3D!",
+    "btnText": "CLAIM 20% DISCOUNT",
+    "btnLink": "shop.html",
+    "btnIcon": "fa-solid fa-percent",
+    "image": "assets/images/SUMMER_SALE_-.jpeg",
+    "status": "active",
+    "duration": 8000
+  },
+  {
+    "id": 3,
+    "title": "MINECRAFT FANS",
+    "highlightText": "MEETUP 2026",
+    "badgeText": "التجمع السنوي لمكتشفي المكعبات",
+    "badgeIcon": "fa-solid fa-ticket",
+    "badgeColor": "blue",
+    "desc": "احجز تذكرتك لحضور أكبر تجمع لمحبي البناء والـ 3D، عروض مسرحية حية ومسابقات مجسمات خرافية!",
+    "btnText": "BOOK MEETUP TICKETS",
+    "btnLink": "categories.html",
+    "btnIcon": "fa-solid fa-ticket",
+    "image": "assets/images/MINECRAFT_FANS.jpg",
+    "status": "active",
+    "duration": 8000
+  }
+]

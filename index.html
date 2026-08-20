@@ -1,15 +1,18 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mine Mart | متجر ماين مارت - عوالم الفوكسل والبكسل 3D</title>
-    <meta name="description" content="متجر ماين مارت لابتكارات الفوكسل والـ 3D، مصابيح المكعبات المضيئة، مجسمات الثعلب والسيف والتنين، ومستلزمات السيت اب.">
+    <meta name="description"
+        content="متجر ماين مارت لابتكارات الفوكسل والـ 3D، مصابيح المكعبات المضيئة، مجسمات الثعلب والسيف والتنين، ومستلزمات السيت اب.">
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="assets/css/styles.css">
 </head>
+
 <body>
 
     <!-- Outer Glowing Neon Frame Container -->
@@ -29,7 +32,8 @@
                 <li><a href="categories.html" class="nav-link">الأقسام</a></li>
                 <li><a href="about.html" class="nav-link">عن المتجر</a></li>
                 <li><a href="#" class="nav-link">المدونة</a></li>
-                <li><a href="javascript:void(0)" class="nav-link support-trigger"><i class="fa-solid fa-headset"></i> الدعم</a></li>
+                <li><a href="javascript:void(0)" class="nav-link support-trigger"><i class="fa-solid fa-headset"></i>
+                        الدعم</a></li>
             </ul>
 
             <!-- Header Actions (Search & Cart) -->
@@ -39,9 +43,18 @@
                     <i class="fa-solid fa-magnifying-glass search-icon"></i>
                 </div>
                 <div class="currency-switcher-container">
-                    <button class="currency-badge-btn" id="currencyToggleBtn" onclick="toggleCurrencyQuick()" title="تبديل العملة بين الدينار العراقي والدولار">
-                        <span id="currentCurrencyFlag"><span class="currency-flag-svg" title="العراق (IQD)"><svg viewBox="0 0 640 480"><path fill="#f00" d="M0 0h640v160H0z"/><path fill="#fff" d="M0 160h640v160H0z"/><path fill="#000" d="M0 320h640v160H0z"/><text x="320" y="272" font-size="70" font-weight="900" fill="#007a3d" text-anchor="middle" font-family="sans-serif">الله أكبر</text></svg></span></span>
-                        <span id="currentCurrencyLabel"><span class="currency-label-text"><span class="curr-code">IQD</span> <span class="curr-sym">(د.ع)</span></span></span>
+                    <button class="currency-badge-btn" id="currencyToggleBtn" onclick="toggleCurrencyQuick()"
+                        title="تبديل العملة بين الدينار العراقي والدولار">
+                        <span id="currentCurrencyFlag"><span class="currency-flag-svg" title="العراق (IQD)"><svg
+                                    viewBox="0 0 640 480">
+                                    <path fill="#f00" d="M0 0h640v160H0z" />
+                                    <path fill="#fff" d="M0 160h640v160H0z" />
+                                    <path fill="#000" d="M0 320h640v160H0z" /><text x="320" y="272" font-size="70"
+                                        font-weight="900" fill="#007a3d" text-anchor="middle"
+                                        font-family="sans-serif">الله أكبر</text>
+                                </svg></span></span>
+                        <span id="currentCurrencyLabel"><span class="currency-label-text"><span
+                                    class="curr-code">IQD</span> <span class="curr-sym">(د.ع)</span></span></span>
                     </button>
                 </div>
                 <button class="action-btn" id="cartTrigger" aria-label="السلة">
@@ -49,7 +62,8 @@
                     <span class="cart-counter" id="cartBadge">0</span>
                 </button>
                 <div class="user-menu-container">
-                    <button class="action-btn" aria-label="الحساب" id="userAuthTrigger" onclick="handleUserHeaderClick()">
+                    <button class="action-btn" aria-label="الحساب" id="userAuthTrigger"
+                        onclick="handleUserHeaderClick()">
                         <i class="fa-regular fa-user"></i>
                     </button>
                     <div class="user-profile-dropdown" id="userProfileDropdown">
@@ -57,17 +71,23 @@
                             <div class="user-dropdown-name" id="dropdownUserName">حسابي</div>
                             <div class="user-dropdown-email" id="dropdownUserEmail">user@example.com</div>
                         </div>
-                        <a href="shop.html" class="user-dropdown-item"><i class="fa-solid fa-bag-shopping"></i> تصفح المتجر</a>
-                        <a href="javascript:void(0)" onclick="openMyOrdersModal()" class="user-dropdown-item"><i class="fa-solid fa-box"></i> طلباتي السابقة</a>
-                        <div style="padding:0.4rem 0.75rem; font-size:0.8rem; color:var(--text-muted); display:flex; justify-content:space-between; align-items:center; border-top:1px solid rgba(118,230,17,0.15); margin-top:0.25rem;">
+                        <a href="shop.html" class="user-dropdown-item"><i class="fa-solid fa-bag-shopping"></i> تصفح
+                            المتجر</a>
+                        <a href="javascript:void(0)" onclick="openMyOrdersModal()" class="user-dropdown-item"><i
+                                class="fa-solid fa-box"></i> طلباتي السابقة</a>
+                        <div
+                            style="padding:0.4rem 0.75rem; font-size:0.8rem; color:var(--text-muted); display:flex; justify-content:space-between; align-items:center; border-top:1px solid rgba(118,230,17,0.15); margin-top:0.25rem;">
                             <span>العملة:</span>
-                            <select onchange="setSelectedCurrency(this.value)" id="dropdownCurrencySelect" style="background:#090e0b; color:var(--neon-green); border:1px solid var(--border-green); border-radius:4px; padding:0.2rem 0.4rem; font-size:0.8rem; outline:none; font-family:inherit;">
+                            <select onchange="setSelectedCurrency(this.value)" id="dropdownCurrencySelect"
+                                style="background:#090e0b; color:var(--neon-green); border:1px solid var(--border-green); border-radius:4px; padding:0.2rem 0.4rem; font-size:0.8rem; outline:none; font-family:inherit;">
                                 <option value="IQD">🇮🇶 د.ع (IQD)</option>
                                 <option value="USD">🇺🇸 $ (USD)</option>
                             </select>
                         </div>
-                        <a href="admin.html" class="user-dropdown-item" id="dropdownAdminLink" style="display:none;"><i class="fa-solid fa-gauge"></i> لوحة الإدارة</a>
-                        <div class="user-dropdown-item logout" onclick="handleCustomerLogout()"><i class="fa-solid fa-arrow-right-from-bracket"></i> تسجيل الخروج</div>
+                        <a href="admin.html" class="user-dropdown-item" id="dropdownAdminLink" style="display:none;"><i
+                                class="fa-solid fa-gauge"></i> لوحة الإدارة</a>
+                        <div class="user-dropdown-item logout" onclick="handleCustomerLogout()"><i
+                                class="fa-solid fa-arrow-right-from-bracket"></i> تسجيل الخروج</div>
                     </div>
                 </div>
                 <button class="mobile-hamburger-btn" id="mobileNavBtn" aria-label="القائمة">
@@ -83,7 +103,8 @@
                 <div class="logo-wrapper">
                     <img src="assets/images/logo.png" alt="Mine Mart Logo" style="height:32px;">
                 </div>
-                <button style="background:none; border:none; color:#fff; font-size:1.4rem; cursor:pointer;" id="closeMobileNavBtn">&times;</button>
+                <button style="background:none; border:none; color:#fff; font-size:1.4rem; cursor:pointer;"
+                    id="closeMobileNavBtn">&times;</button>
             </div>
             <ul class="mobile-nav-list">
                 <li><a href="index.html" class="active"><i class="fa-solid fa-house"></i> الرئيسية</a></li>
@@ -91,7 +112,8 @@
                 <li><a href="categories.html"><i class="fa-solid fa-layer-group"></i> أقسام المتجر</a></li>
                 <li><a href="shop.html?cat=creatures"><i class="fa-solid fa-cube"></i> مجسمات ثلاثية الأبعاد</a></li>
                 <li><a href="shop.html?cat=accessories"><i class="fa-solid fa-desktop"></i> مستلزمات السيت اب</a></li>
-                <li><a href="javascript:void(0)" class="support-trigger"><i class="fa-solid fa-headset"></i> الدعم الفني والمجيب</a></li>
+                <li><a href="javascript:void(0)" class="support-trigger"><i class="fa-solid fa-headset"></i> الدعم الفني
+                        والمجيب</a></li>
             </ul>
         </aside>
 
@@ -99,15 +121,17 @@
         <!-- Hero Section (Slider Banner with 3 Interactive Showcase Slides) -->
         <!-- Hero Section (Slider Banner with 3 Interactive Slides) -->
         <section class="hero-slider-wrapper" id="heroSliderWrapper">
-            
+
             <!-- Slide 1: Setup Gear Showcase -->
-            <div class="hero-slide slide-1 active" style="background-image: linear-gradient(270deg, rgba(8, 12, 9, 0.95) 0%, rgba(8, 12, 9, 0.85) 45%, rgba(8, 12, 9, 0.35) 80%, transparent 100%), url('assets/images/hero_bg.jpg'); background-size: cover; background-position: center center; background-repeat: no-repeat;">
+            <div class="hero-slide slide-1 active"
+                style="background-image: linear-gradient(270deg, rgba(8, 12, 9, 0.95) 0%, rgba(8, 12, 9, 0.85) 45%, rgba(8, 12, 9, 0.35) 80%, transparent 100%), url('assets/images/hero_bg.jpg'); background-size: cover; background-position: center center; background-repeat: no-repeat;">
                 <div class="hero-badge-tag">
                     <i class="fa-solid fa-desktop"></i> مستلزمات وسيت اب الجيمرز
                 </div>
                 <div class="hero-text-box">
                     <h1>PREMIUM MINECRAFT <span>GEAR</span></h1>
-                    <p>صمّم عالمك المكعبي - استكشف مجموعتنا الحصرية من مستلزمات السيت اب المضيئة والماوس بادات البكسلية الاحترافية.</p>
+                    <p>صمّم عالمك المكعبي - استكشف مجموعتنا الحصرية من مستلزمات السيت اب المضيئة والماوس بادات البكسلية
+                        الاحترافية.</p>
                     <a href="shop.html" class="btn-hero-cta">
                         SHOP NOW <i class="fa-solid fa-arrow-left"></i>
                     </a>
@@ -115,28 +139,35 @@
             </div>
 
             <!-- Slide 2: 20% OFF 3D Printing Summer Sale -->
-            <div class="hero-slide slide-2" style="background-image: linear-gradient(270deg, rgba(8, 12, 9, 0.95) 0%, rgba(8, 12, 9, 0.85) 45%, rgba(8, 12, 9, 0.35) 80%, transparent 100%), url('assets/images/hero_bg_3d.jpg'); background-size: cover; background-position: center center; background-repeat: no-repeat;">
-                <div class="hero-badge-tag" style="border-color: #ff0055; color: #ff6699; background: rgba(255, 0, 85, 0.15);">
+            <div class="hero-slide slide-2"
+                style="background-image: linear-gradient(270deg, rgba(8, 12, 9, 0.95) 0%, rgba(8, 12, 9, 0.85) 45%, rgba(8, 12, 9, 0.35) 80%, transparent 100%), url('assets/images/hero_bg_3d.jpg'); background-size: cover; background-position: center center; background-repeat: no-repeat;">
+                <div class="hero-badge-tag"
+                    style="border-color: #ff0055; color: #ff6699; background: rgba(255, 0, 85, 0.15);">
                     <i class="fa-solid fa-sun"></i> عروض العطلة الصيفية 🔥
                 </div>
                 <div class="hero-text-box">
                     <h1>SUMMER SALE - <span>20% OFF</span> 3D PRINTING</h1>
-                    <p>احصل على خصم 20% بمناسبة العطلة الصيفية على جميع طلبات المجسمات والطباعة ثلاثية الأبعاد المخصصة 3D!</p>
-                    <a href="shop.html" class="btn-hero-cta" style="background: rgba(255,0,85,0.2); border-color: #ff0055; color: #fff;">
+                    <p>احصل على خصم 20% بمناسبة العطلة الصيفية على جميع طلبات المجسمات والطباعة ثلاثية الأبعاد المخصصة
+                        3D!</p>
+                    <a href="shop.html" class="btn-hero-cta"
+                        style="background: rgba(255,0,85,0.2); border-color: #ff0055; color: #fff;">
                         CLAIM 20% DISCOUNT <i class="fa-solid fa-percent"></i>
                     </a>
                 </div>
             </div>
 
             <!-- Slide 3: Minecraft Fans Meetup Event Tickets -->
-            <div class="hero-slide slide-3" style="background-image: linear-gradient(270deg, rgba(8, 12, 9, 0.95) 0%, rgba(8, 12, 9, 0.85) 45%, rgba(8, 12, 9, 0.35) 80%, transparent 100%), url('assets/images/hero_bg_meetup.jpg'); background-size: cover; background-position: center center; background-repeat: no-repeat;">
-                <div class="hero-badge-tag" style="border-color: #00d2ff; color: #80e5ff; background: rgba(0, 210, 255, 0.15);">
+            <div class="hero-slide slide-3"
+                style="background-image: linear-gradient(270deg, rgba(8, 12, 9, 0.95) 0%, rgba(8, 12, 9, 0.85) 45%, rgba(8, 12, 9, 0.35) 80%, transparent 100%), url('assets/images/hero_bg_meetup.jpg'); background-size: cover; background-position: center center; background-repeat: no-repeat;">
+                <div class="hero-badge-tag"
+                    style="border-color: #00d2ff; color: #80e5ff; background: rgba(0, 210, 255, 0.15);">
                     <i class="fa-solid fa-ticket"></i> التجمع السنوي لمكتشفي المكعبات
                 </div>
                 <div class="hero-text-box">
                     <h1>MINECRAFT FANS <span>MEETUP 2026</span></h1>
                     <p>احجز تذكرتك لحضور أكبر تجمع لمحبي البناء والـ 3D، عروض مسرحية حية ومسابقات مجسمات خرافية!</p>
-                    <a href="categories.html" class="btn-hero-cta" style="background: rgba(0,210,255,0.2); border-color: #00d2ff; color: #fff;">
+                    <a href="categories.html" class="btn-hero-cta"
+                        style="background: rgba(0,210,255,0.2); border-color: #00d2ff; color: #fff;">
                         BOOK MEETUP TICKETS <i class="fa-solid fa-ticket"></i>
                     </a>
                 </div>
@@ -192,7 +223,8 @@
             <section class="homepage-product-section" style="margin-bottom: 2rem;">
                 <div class="homepage-section-header">
                     <h2 class="homepage-section-title">
-                        <i class="fa-solid fa-wand-magic-sparkles" style="color: var(--neon-green);"></i> منتجات قد تعجبك (مخصصة لك)
+                        <i class="fa-solid fa-wand-magic-sparkles" style="color: var(--neon-green);"></i> منتجات قد
+                        تعجبك (مخصصة لك)
                     </h2>
                     <span class="homepage-section-hint">مبني بناءً على تصفحاتك واهتماماتك</span>
                 </div>
@@ -204,21 +236,27 @@
         <!-- Rich E-Commerce Footer Bar -->
         <footer class="footer-v1">
             <div class="footer-top-grid">
-                
+
                 <!-- Col 1: Mine Mart Bio & Social -->
                 <div>
                     <div class="logo-wrapper" style="margin-bottom:1rem;">
                         <img src="assets/images/logo.png" alt="Mine Mart Logo" style="height:36px;">
                     </div>
                     <p class="footer-bio">
-                        متجر ماين مارت المتخصص الأول في ابتكارات الـ 3D، مصابيح ومستلزمات السيت اب المضيئة، ومقتنيات العوالم المكعبة الفاخرة.
+                        متجر ماين مارت المتخصص الأول في ابتكارات الـ 3D، مصابيح ومستلزمات السيت اب المضيئة، ومقتنيات
+                        العوالم المكعبة الفاخرة.
                     </p>
                     <ul class="social-links-list">
-                        <li><a href="#" class="social-icon-btn" aria-label="Discord"><i class="fa-brands fa-discord"></i></a></li>
-                        <li><a href="#" class="social-icon-btn" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a></li>
-                        <li><a href="#" class="social-icon-btn" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a></li>
-                        <li><a href="#" class="social-icon-btn" aria-label="X / Twitter"><i class="fa-brands fa-x-twitter"></i></a></li>
-                        <li><a href="#" class="social-icon-btn" aria-label="TikTok"><i class="fa-brands fa-tiktok"></i></a></li>
+                        <li><a href="#" class="social-icon-btn" aria-label="Discord"><i
+                                    class="fa-brands fa-discord"></i></a></li>
+                        <li><a href="#" class="social-icon-btn" aria-label="YouTube"><i
+                                    class="fa-brands fa-youtube"></i></a></li>
+                        <li><a href="#" class="social-icon-btn" aria-label="Instagram"><i
+                                    class="fa-brands fa-instagram"></i></a></li>
+                        <li><a href="#" class="social-icon-btn" aria-label="X / Twitter"><i
+                                    class="fa-brands fa-x-twitter"></i></a></li>
+                        <li><a href="#" class="social-icon-btn" aria-label="TikTok"><i
+                                    class="fa-brands fa-tiktok"></i></a></li>
                     </ul>
                 </div>
 
@@ -229,8 +267,10 @@
                         <li><a href="index.html"><i class="fa-solid fa-angle-left"></i> الرئيسية</a></li>
                         <li><a href="shop.html"><i class="fa-solid fa-angle-left"></i> متجر المنتجات (Shop)</a></li>
                         <li><a href="categories.html"><i class="fa-solid fa-angle-left"></i> أقسام المتجر</a></li>
-                        <li><a href="shop.html?cat=creatures"><i class="fa-solid fa-angle-left"></i> مجسمات ثلاثية الأبعاد</a></li>
-                        <li><a href="shop.html?cat=accessories"><i class="fa-solid fa-angle-left"></i> مستلزمات السيت اب</a></li>
+                        <li><a href="shop.html?cat=creatures"><i class="fa-solid fa-angle-left"></i> مجسمات ثلاثية
+                                الأبعاد</a></li>
+                        <li><a href="shop.html?cat=accessories"><i class="fa-solid fa-angle-left"></i> مستلزمات السيت
+                                اب</a></li>
                     </ul>
                 </div>
 
@@ -265,11 +305,13 @@
                     &copy; 2026 <strong>Mine Mart Iraq Ltd</strong>. جميع الحقوق محفوظة.
                 </div>
                 <div class="payment-methods-strip">
-                    <span class="payment-badge"><i class="fa-solid fa-mobile-screen-button"></i> زين كاش (ZainCash)</span>
+                    <span class="payment-badge"><i class="fa-solid fa-mobile-screen-button"></i> زين كاش
+                        (ZainCash)</span>
                     <span class="payment-badge"><i class="fa-solid fa-credit-card"></i> كي كارد (Qi Card)</span>
                     <span class="payment-badge"><i class="fa-brands fa-cc-visa"></i> فيزا (Visa)</span>
                     <span class="payment-badge"><i class="fa-brands fa-cc-mastercard"></i> ماستركارد</span>
-                    <span class="payment-badge"><i class="fa-solid fa-hand-holding-dollar"></i> الدفع عند الاستلام</span>
+                    <span class="payment-badge"><i class="fa-solid fa-hand-holding-dollar"></i> الدفع عند
+                        الاستلام</span>
                 </div>
             </div>
         </footer>
@@ -337,17 +379,23 @@
     <!-- Shopping Cart Drawer -->
     <div class="cart-drawer-overlay" id="cartOverlay"></div>
     <aside class="cart-drawer-v1" id="cartDrawer">
-        <div style="padding:1.25rem; border-bottom:1px solid var(--border-green); display:flex; justify-content:space-between; align-items:center;">
-            <h3 style="color:var(--neon-green); font-size:1.1rem;"><i class="fa-solid fa-cart-shopping"></i> سلة التسوق</h3>
-            <button style="background:none; border:none; color:#fff; font-size:1.4rem; cursor:pointer;" id="closeCartBtn">&times;</button>
+        <div
+            style="padding:1.25rem; border-bottom:1px solid var(--border-green); display:flex; justify-content:space-between; align-items:center;">
+            <h3 style="color:var(--neon-green); font-size:1.1rem;"><i class="fa-solid fa-cart-shopping"></i> سلة التسوق
+            </h3>
+            <button style="background:none; border:none; color:#fff; font-size:1.4rem; cursor:pointer;"
+                id="closeCartBtn">&times;</button>
         </div>
-        <div style="flex:1; padding:1.25rem; overflow-y:auto; display:flex; flex-direction:column; gap:0.75rem;" id="cartItems"></div>
+        <div style="flex:1; padding:1.25rem; overflow-y:auto; display:flex; flex-direction:column; gap:0.75rem;"
+            id="cartItems"></div>
         <div style="padding:1.25rem; border-top:1px solid var(--border-green); background:#0c100e;">
-            <div style="display:flex; justify-content:space-between; font-weight:800; font-size:1.1rem; margin-bottom:1rem;">
+            <div
+                style="display:flex; justify-content:space-between; font-weight:800; font-size:1.1rem; margin-bottom:1rem;">
                 <span>المجموع:</span>
                 <span id="cartSubtotal">0 د.ع</span>
             </div>
-            <button class="btn-hero-cta" onclick="proceedToCheckout()" style="width:100%; justify-content:center;">إتمام الشراء <i class="fa-solid fa-arrow-left"></i></button>
+            <button class="btn-hero-cta" onclick="proceedToCheckout()" style="width:100%; justify-content:center;">إتمام
+                الشراء <i class="fa-solid fa-arrow-left"></i></button>
         </div>
     </aside>
 
@@ -355,7 +403,7 @@
     <div class="modal-overlay" id="customerAuthModal" onclick="if(event.target === this) closeCustomerAuthModal()">
         <div class="modal-box-v1" style="max-width:480px; padding:2rem 2.25rem;">
             <button class="modal-close-btn" onclick="closeCustomerAuthModal()">&times;</button>
-            
+
             <div class="auth-tabs-nav">
                 <button class="auth-tab-btn active" id="tabBtnLogin" onclick="switchAuthTab('login')">
                     <i class="fa-solid fa-right-to-bracket"></i> تسجيل الدخول
@@ -366,8 +414,10 @@
             </div>
 
             <!-- Notice banner for checkout flow -->
-            <div id="authNoticeBanner" style="display:none; background:rgba(118,230,17,0.12); border:1px solid var(--border-green); padding:0.75rem 1rem; border-radius:8px; font-size:0.85rem; color:var(--neon-green); margin-bottom:1.25rem;">
-                <i class="fa-solid fa-circle-info"></i> يرجى تسجيل الدخول أو إنشاء حساب لإتمام عملية الشراء وحفظ عنوان الشحن!
+            <div id="authNoticeBanner"
+                style="display:none; background:rgba(118,230,17,0.12); border:1px solid var(--border-green); padding:0.75rem 1rem; border-radius:8px; font-size:0.85rem; color:var(--neon-green); margin-bottom:1.25rem;">
+                <i class="fa-solid fa-circle-info"></i> يرجى تسجيل الدخول أو إنشاء حساب لإتمام عملية الشراء وحفظ عنوان
+                الشحن!
             </div>
 
             <!-- Login Form Panel -->
@@ -375,11 +425,13 @@
                 <form id="customerLoginForm" onsubmit="handleCustomerLoginSubmit(event)">
                     <div class="auth-input-group">
                         <label>البريد الإلكتروني</label>
-                        <input type="email" id="loginEmailInput" class="auth-input-field" placeholder="name@example.com" required>
+                        <input type="email" id="loginEmailInput" class="auth-input-field" placeholder="name@example.com"
+                            required>
                     </div>
                     <div class="auth-input-group">
                         <label>كلمة المرور</label>
-                        <input type="password" id="loginPasswordInput" class="auth-input-field" placeholder="••••••••" required>
+                        <input type="password" id="loginPasswordInput" class="auth-input-field" placeholder="••••••••"
+                            required>
                     </div>
                     <div class="auth-input-group">
                         <label><i class="fa-solid fa-coins"></i> عملة الأسعار والتسوق</label>
@@ -388,7 +440,8 @@
                             <option value="USD">🇺🇸 الدولار الأمريكي (USD - $)</option>
                         </select>
                     </div>
-                    <button type="submit" class="btn-hero-cta" style="width:100%; justify-content:center; margin-top:0.75rem;">
+                    <button type="submit" class="btn-hero-cta"
+                        style="width:100%; justify-content:center; margin-top:0.75rem;">
                         تسجيل الدخول <i class="fa-solid fa-arrow-left"></i>
                     </button>
                     <div class="auth-switch-link">
@@ -406,7 +459,8 @@
                     </div>
                     <div class="auth-input-group">
                         <label>البريد الإلكتروني</label>
-                        <input type="email" id="regEmailInput" class="auth-input-field" placeholder="name@example.com" required>
+                        <input type="email" id="regEmailInput" class="auth-input-field" placeholder="name@example.com"
+                            required>
                     </div>
                     <div class="auth-input-group">
                         <label>رقم الجوال (العراق)</label>
@@ -414,7 +468,8 @@
                     </div>
                     <div class="auth-input-group">
                         <label>كلمة المرور</label>
-                        <input type="password" id="regPasswordInput" class="auth-input-field" placeholder="••••••••" required minlength="6">
+                        <input type="password" id="regPasswordInput" class="auth-input-field" placeholder="••••••••"
+                            required minlength="6">
                     </div>
                     <div class="auth-input-group">
                         <label><i class="fa-solid fa-coins"></i> عملة الحساب والأسعار</label>
@@ -423,7 +478,8 @@
                             <option value="USD">🇺🇸 الدولار الأمريكي (USD - $)</option>
                         </select>
                     </div>
-                    <button type="submit" class="btn-hero-cta" style="width:100%; justify-content:center; margin-top:0.75rem;">
+                    <button type="submit" class="btn-hero-cta"
+                        style="width:100%; justify-content:center; margin-top:0.75rem;">
                         إنشاء الحساب <i class="fa-solid fa-user-check"></i>
                     </button>
                     <div class="auth-switch-link">
@@ -439,13 +495,14 @@
     <div class="modal-overlay" id="checkoutModal" onclick="if(event.target === this) closeCheckoutModal()">
         <div class="modal-box-v1" style="max-width:820px; padding:2rem;">
             <button class="modal-close-btn" onclick="closeCheckoutModal()">&times;</button>
-            <h2 style="color:var(--neon-green); font-size:1.35rem; margin-bottom:1.5rem; display:flex; align-items:center; gap:0.6rem;">
+            <h2
+                style="color:var(--neon-green); font-size:1.35rem; margin-bottom:1.5rem; display:flex; align-items:center; gap:0.6rem;">
                 <i class="fa-solid fa-bag-shopping"></i> إتمام الطلب وعنوان الشحن في العراق
             </h2>
-            
+
             <form id="checkoutForm" onsubmit="handleFinalOrderSubmit(event)">
                 <div class="checkout-steps-grid">
-                    
+
                     <!-- Left: Shipping and Payment Details -->
                     <div>
                         <!-- Shipping Address Section -->
@@ -453,14 +510,16 @@
                             <div class="checkout-section-title">
                                 <i class="fa-solid fa-location-dot"></i> معلومات الشحن والتوصيل (محافظات العراق)
                             </div>
-                            <div class="form-grid-2col" style="display:grid; grid-template-columns:1fr 1fr; gap:0.85rem;">
+                            <div class="form-grid-2col"
+                                style="display:grid; grid-template-columns:1fr 1fr; gap:0.85rem;">
                                 <div class="auth-input-group">
                                     <label>الاسم الكامل</label>
                                     <input type="text" id="coName" class="auth-input-field" required>
                                 </div>
                                 <div class="auth-input-group">
                                     <label>رقم الجوال</label>
-                                    <input type="tel" id="coPhone" class="auth-input-field" placeholder="07XXXXXXXXX" required>
+                                    <input type="tel" id="coPhone" class="auth-input-field" placeholder="07XXXXXXXXX"
+                                        required>
                                 </div>
                                 <div class="auth-input-group">
                                     <label>المحافظة / المدينة</label>
@@ -487,7 +546,8 @@
                                 </div>
                                 <div class="auth-input-group">
                                     <label>المنطقة / الحي والشارع</label>
-                                    <input type="text" id="coAddress" class="auth-input-field" placeholder="مثال: المنصور / الكرادة - شارع 14 رمضان" required>
+                                    <input type="text" id="coAddress" class="auth-input-field"
+                                        placeholder="مثال: المنصور / الكرادة - شارع 14 رمضان" required>
                                 </div>
                             </div>
                         </div>
@@ -498,7 +558,8 @@
                                 <i class="fa-solid fa-credit-card"></i> طريقة الدفع في العراق
                             </div>
                             <div class="payment-options-grid">
-                                <div class="payment-option-card selected" onclick="selectPaymentMethod('zaincash', this)">
+                                <div class="payment-option-card selected"
+                                    onclick="selectPaymentMethod('zaincash', this)">
                                     <input type="radio" name="paymentMethod" value="زين كاش ZainCash" checked>
                                     <i class="fa-solid fa-mobile-screen-button" style="color:var(--neon-green);"></i>
                                     <span>زين كاش (ZainCash)</span>
@@ -525,39 +586,50 @@
                     <!-- Right: Order Summary & Coupon -->
                     <div>
                         <div class="order-summary-box">
-                            <h4 style="color:#fff; font-size:1rem; margin-bottom:1rem; border-bottom:1px solid rgba(118,230,17,0.2); padding-bottom:0.5rem;">
+                            <h4
+                                style="color:#fff; font-size:1rem; margin-bottom:1rem; border-bottom:1px solid rgba(118,230,17,0.2); padding-bottom:0.5rem;">
                                 <i class="fa-solid fa-receipt"></i> ملخص الطلب
                             </h4>
-                            
-                            <div id="checkoutItemsList" style="max-height:180px; overflow-y:auto; margin-bottom:1rem; display:flex; flex-direction:column; gap:0.5rem;">
+
+                            <div id="checkoutItemsList"
+                                style="max-height:180px; overflow-y:auto; margin-bottom:1rem; display:flex; flex-direction:column; gap:0.5rem;">
                                 <!-- Dynamic Checkout Items -->
                             </div>
 
                             <!-- Coupon Code Box -->
                             <div style="display:flex; gap:0.4rem; margin-bottom:1rem;">
-                                <input type="text" id="checkoutCouponInput" placeholder="كود الخصم (SUMMER20)" class="auth-input-field" style="text-transform:uppercase; padding:0.5rem 0.75rem; font-size:0.85rem;">
-                                <button type="button" class="btn-sm-action" onclick="applyCheckoutCoupon()" style="padding:0.5rem 1rem; border-radius:6px; font-weight:800;">تطبيق</button>
+                                <input type="text" id="checkoutCouponInput" placeholder="كود الخصم (SUMMER20)"
+                                    class="auth-input-field"
+                                    style="text-transform:uppercase; padding:0.5rem 0.75rem; font-size:0.85rem;">
+                                <button type="button" class="btn-sm-action" onclick="applyCheckoutCoupon()"
+                                    style="padding:0.5rem 1rem; border-radius:6px; font-weight:800;">تطبيق</button>
                             </div>
-                            <div id="couponAppliedMsg" style="display:none; font-size:0.8rem; margin-bottom:0.75rem;"></div>
+                            <div id="couponAppliedMsg" style="display:none; font-size:0.8rem; margin-bottom:0.75rem;">
+                            </div>
 
-                            <div style="display:flex; justify-content:space-between; font-size:0.9rem; color:var(--text-muted); margin-bottom:0.4rem;">
+                            <div
+                                style="display:flex; justify-content:space-between; font-size:0.9rem; color:var(--text-muted); margin-bottom:0.4rem;">
                                 <span>المجموع الفرعي:</span>
                                 <span id="coSubtotal">0 د.ع</span>
                             </div>
-                            <div style="display:flex; justify-content:space-between; font-size:0.9rem; color:var(--text-muted); margin-bottom:0.4rem;">
+                            <div
+                                style="display:flex; justify-content:space-between; font-size:0.9rem; color:var(--text-muted); margin-bottom:0.4rem;">
                                 <span>الشحن والتوصيل:</span>
                                 <span style="color:var(--neon-green); font-weight:700;">مجاني لكافة المحافظات 🔥</span>
                             </div>
-                            <div id="coDiscountRow" style="display:none; justify-content:space-between; font-size:0.9rem; color:#ff0055; margin-bottom:0.4rem;">
+                            <div id="coDiscountRow"
+                                style="display:none; justify-content:space-between; font-size:0.9rem; color:#ff0055; margin-bottom:0.4rem;">
                                 <span>خصم الكوبون:</span>
                                 <span id="coDiscountVal">-0 د.ع</span>
                             </div>
-                            <div style="display:flex; justify-content:space-between; font-size:1.15rem; font-weight:900; color:#fff; border-top:1px solid rgba(118,230,17,0.2); padding-top:0.75rem; margin-top:0.75rem;">
+                            <div
+                                style="display:flex; justify-content:space-between; font-size:1.15rem; font-weight:900; color:#fff; border-top:1px solid rgba(118,230,17,0.2); padding-top:0.75rem; margin-top:0.75rem;">
                                 <span>الإجمالي النهائي:</span>
                                 <span id="coGrandTotal" style="color:var(--neon-green);">0 د.ع</span>
                             </div>
 
-                            <button type="submit" class="btn-hero-cta" style="width:100%; justify-content:center; margin-top:1.25rem; font-size:1rem;">
+                            <button type="submit" class="btn-hero-cta"
+                                style="width:100%; justify-content:center; margin-top:1.25rem; font-size:1rem;">
                                 تأكيد الطلب والدفع <i class="fa-solid fa-shield-halved"></i>
                             </button>
                         </div>
@@ -571,18 +643,23 @@
     <!-- Order Success Receipt Modal -->
     <div class="modal-overlay" id="orderSuccessModal" onclick="if(event.target === this) closeSuccessModal()">
         <div class="modal-box-v1" style="max-width:500px; text-align:center; padding:2.5rem 2rem;">
-            <div style="width:70px; height:70px; border-radius:50%; background:rgba(118,230,17,0.15); border:2px solid var(--neon-green); display:flex; align-items:center; justify-content:center; margin:0 auto 1.25rem; font-size:2rem; color:var(--neon-green);">
+            <div
+                style="width:70px; height:70px; border-radius:50%; background:rgba(118,230,17,0.15); border:2px solid var(--neon-green); display:flex; align-items:center; justify-content:center; margin:0 auto 1.25rem; font-size:2rem; color:var(--neon-green);">
                 <i class="fa-solid fa-check"></i>
             </div>
             <h2 style="color:#fff; font-size:1.4rem; margin-bottom:0.5rem;">تم استلام طلبك بنجاح!</h2>
-            <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:1.5rem;" id="successOrderNumber">رقم الطلب: #ORD-9083</p>
-            
-            <div style="background:#090e0b; border:1px solid var(--border-green); border-radius:8px; padding:1rem; text-align:right; font-size:0.88rem; margin-bottom:1.5rem; line-height:1.8;">
-                <div><strong>حالة الطلب:</strong> <span style="color:var(--neon-green);">قيد المراجعة والتجهيز</span></div>
+            <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:1.5rem;" id="successOrderNumber">رقم
+                الطلب: #ORD-9083</p>
+
+            <div
+                style="background:#090e0b; border:1px solid var(--border-green); border-radius:8px; padding:1rem; text-align:right; font-size:0.88rem; margin-bottom:1.5rem; line-height:1.8;">
+                <div><strong>حالة الطلب:</strong> <span style="color:var(--neon-green);">قيد المراجعة والتجهيز</span>
+                </div>
                 <div><strong>الاسم:</strong> <span id="receiptCustomerName">-</span></div>
                 <div><strong>عنوان التوصيل:</strong> <span id="receiptAddress">-</span></div>
                 <div><strong>طريقة الدفع:</strong> <span id="receiptPayment">-</span></div>
-                <div><strong>الإجمالي:</strong> <span id="receiptTotal" style="color:var(--neon-green); font-weight:800;">-</span></div>
+                <div><strong>الإجمالي:</strong> <span id="receiptTotal"
+                        style="color:var(--neon-green); font-weight:800;">-</span></div>
             </div>
 
             <button class="btn-hero-cta" onclick="closeSuccessModal()" style="width:100%; justify-content:center;">
@@ -610,7 +687,7 @@
     </button>
 
     <!-- Custom Script -->
-    
+
     <!-- Support Drawer Curtain & AI Chat Bot Overlay -->
     <div class="support-drawer-overlay" id="supportOverlay"></div>
     <aside class="support-drawer-v1" id="supportDrawer">
@@ -622,41 +699,64 @@
         </div>
 
         <div class="support-contact-banner">
-            <div style="font-size:0.85rem; color:var(--text-muted); display:flex; align-items:center; justify-content:space-between;">
-                <span><i class="fa-solid fa-envelope" style="color:var(--neon-green);"></i> البريد الإلكتروني الرسمي للمتجر:</span>
-                <span class="badge-live" style="background:rgba(118,230,17,0.15); color:var(--neon-green); font-size:0.7rem; padding:0.15rem 0.5rem; border-radius:10px;">رد فوري 24/7</span>
+            <div
+                style="font-size:0.85rem; color:var(--text-muted); display:flex; align-items:center; justify-content:space-between;">
+                <span><i class="fa-solid fa-envelope" style="color:var(--neon-green);"></i> البريد الإلكتروني الرسمي
+                    للمتجر:</span>
+                <span class="badge-live"
+                    style="background:rgba(118,230,17,0.15); color:var(--neon-green); font-size:0.7rem; padding:0.15rem 0.5rem; border-radius:10px;">رد
+                    فوري 24/7</span>
             </div>
             <div class="contact-email-row">
                 <span class="email-address-text" id="storeEmailText">support@minemart.shop</span>
                 <div style="display:flex; gap:0.4rem;">
-                    <button class="btn-email-action" onclick="copyStoreEmail()" title="نسخ البريد">نسخ <i class="fa-regular fa-copy"></i></button>
-                    <a href="mailto:support@minemart.shop" class="btn-email-action" style="text-decoration:none;" title="مراسلة">مراسلة <i class="fa-solid fa-paper-plane"></i></a>
+                    <button class="btn-email-action" onclick="copyStoreEmail()" title="نسخ البريد">نسخ <i
+                            class="fa-regular fa-copy"></i></button>
+                    <a href="mailto:support@minemart.shop" class="btn-email-action" style="text-decoration:none;"
+                        title="مراسلة">مراسلة <i class="fa-solid fa-paper-plane"></i></a>
                 </div>
             </div>
             <div class="contact-meta-info">
                 <span><i class="fa-solid fa-phone" style="color:var(--neon-green);"></i> +966 50 123 4567</span>
-                <span><i class="fa-solid fa-clock" style="color:var(--neon-green);"></i> الخدمة: 24/7 طوال الأسبوع</span>
+                <span><i class="fa-solid fa-clock" style="color:var(--neon-green);"></i> الخدمة: 24/7 طوال
+                    الأسبوع</span>
             </div>
         </div>
 
         <div class="support-bot-body" id="supportChatBody">
-            <div style="background:#141b17; border:1px solid var(--border-green); color:#fff; padding:0.85rem 1rem; border-radius:10px; font-size:0.88rem; line-height:1.6;">
-                أهلاً بك في <strong>المجيب الآلي لمتجر Mine Mart</strong> 🟩! كيف يمكنني مساعدتك اليوم؟ اختر سؤالاً سريعاً أو اكتب استفسارك مباشرة:
+            <div
+                style="background:#141b17; border:1px solid var(--border-green); color:#fff; padding:0.85rem 1rem; border-radius:10px; font-size:0.88rem; line-height:1.6;">
+                أهلاً بك في <strong>المجيب الآلي لمتجر Mine Mart</strong> 🟩! كيف يمكنني مساعدتك اليوم؟ اختر سؤالاً
+                سريعاً أو اكتب استفسارك مباشرة:
             </div>
             <div style="display:flex; flex-wrap:wrap; gap:0.4rem; margin-top:0.25rem;">
-                <button class="quick-chip" data-msg="خصم الصيف 20%" style="background:rgba(118,230,17,0.1); border:1px solid var(--border-green); color:var(--neon-green); padding:0.35rem 0.7rem; border-radius:15px; font-size:0.78rem; cursor:pointer;">🔥 خصم 20% الصيفي</button>
-                <button class="quick-chip" data-msg="تذاكر التجمع" style="background:rgba(118,230,17,0.1); border:1px solid var(--border-green); color:var(--neon-green); padding:0.35rem 0.7rem; border-radius:15px; font-size:0.78rem; cursor:pointer;">🎟️ تذاكر Meetup</button>
-                <button class="quick-chip" data-msg="الشحن والتوصيل" style="background:rgba(118,230,17,0.1); border:1px solid var(--border-green); color:var(--neon-green); padding:0.35rem 0.7rem; border-radius:15px; font-size:0.78rem; cursor:pointer;">🚚 مدة التوصيل</button>
-                <button class="quick-chip" data-msg="طرق الدفع" style="background:rgba(118,230,17,0.1); border:1px solid var(--border-green); color:var(--neon-green); padding:0.35rem 0.7rem; border-radius:15px; font-size:0.78rem; cursor:pointer;">💳 طرق الدفع المتاحة</button>
+                <button class="quick-chip" data-msg="خصم الصيف 20%"
+                    style="background:rgba(118,230,17,0.1); border:1px solid var(--border-green); color:var(--neon-green); padding:0.35rem 0.7rem; border-radius:15px; font-size:0.78rem; cursor:pointer;">🔥
+                    خصم 20% الصيفي</button>
+                <button class="quick-chip" data-msg="تذاكر التجمع"
+                    style="background:rgba(118,230,17,0.1); border:1px solid var(--border-green); color:var(--neon-green); padding:0.35rem 0.7rem; border-radius:15px; font-size:0.78rem; cursor:pointer;">🎟️
+                    تذاكر Meetup</button>
+                <button class="quick-chip" data-msg="الشحن والتوصيل"
+                    style="background:rgba(118,230,17,0.1); border:1px solid var(--border-green); color:var(--neon-green); padding:0.35rem 0.7rem; border-radius:15px; font-size:0.78rem; cursor:pointer;">🚚
+                    مدة التوصيل</button>
+                <button class="quick-chip" data-msg="طرق الدفع"
+                    style="background:rgba(118,230,17,0.1); border:1px solid var(--border-green); color:var(--neon-green); padding:0.35rem 0.7rem; border-radius:15px; font-size:0.78rem; cursor:pointer;">💳
+                    طرق الدفع المتاحة</button>
             </div>
         </div>
 
         <div class="support-bot-footer">
-            <input type="text" id="supportBotInput" style="flex:1; padding:0.6rem 0.9rem; background:#0c100e; border:1px solid var(--border-green); border-radius:20px; color:#fff; font-size:0.88rem; outline:none;" placeholder="اكتب استفسارك للمجيب الذكي...">
-            <button id="supportBotSendBtn" style="width:40px; height:40px; border-radius:50%; background:var(--neon-green); border:none; color:#000; font-size:1rem; cursor:pointer; display:flex; align-items:center; justify-content:center;"><i class="fa-solid fa-paper-plane"></i></button>
+            <input type="text" id="supportBotInput"
+                style="flex:1; padding:0.6rem 0.9rem; background:#0c100e; border:1px solid var(--border-green); border-radius:20px; color:#fff; font-size:0.88rem; outline:none;"
+                placeholder="اكتب استفسارك للمجيب الذكي...">
+            <button id="supportBotSendBtn"
+                style="width:40px; height:40px; border-radius:50%; background:var(--neon-green); border:none; color:#000; font-size:1rem; cursor:pointer; display:flex; align-items:center; justify-content:center;"><i
+                    class="fa-solid fa-paper-plane"></i></button>
         </div>
     </aside>
 
-    <script src="assets/js/script.js?v=2.8"></script>
+    <script src="assets/js/data-store.js?v=2.9"></script>
+    <script src="assets/js/script.js?v=2.9"></script>
 </body>
+
 </html>
